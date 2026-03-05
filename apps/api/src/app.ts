@@ -7,6 +7,7 @@ import Database from 'better-sqlite3';
 import itemRoutes from './routes/items.js';
 import projectRoutes from './routes/projects.js';
 import devLogRoutes from './routes/dev-logs.js';
+import searchRoutes from './routes/search.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -84,6 +85,7 @@ export async function buildApp(overrides?: {
   await app.register(itemRoutes);
   await app.register(projectRoutes);
   await app.register(devLogRoutes);
+  await app.register(searchRoutes);
 
   return app;
 }
