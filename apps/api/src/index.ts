@@ -8,7 +8,7 @@ async function start() {
   mkdirSync(dirname(config.databaseUrl), { recursive: true });
   createFtsTable(config.databaseUrl);
 
-  const app = await buildApp();
+  const app = await buildApp({ migrate: true });
 
   try {
     await app.listen({ port: config.port, host: config.host });
