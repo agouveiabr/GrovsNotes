@@ -6,9 +6,11 @@ import { dirname } from 'node:path';
 
 async function start() {
   mkdirSync(dirname(config.databaseUrl), { recursive: true });
-  createFtsTable(config.databaseUrl);
 
   const app = await buildApp({ migrate: true });
+
+  // FTS setup must come AFTER migrations create the items table
+  createFtsTable(config.databaseUrl);
 
   try {
     await app.listen({ port: config.port, host: config.host });
