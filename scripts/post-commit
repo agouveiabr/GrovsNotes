@@ -1,0 +1,20 @@
+#!/bin/sh
+# scripts/post-commit
+# GrovsNotes post-commit hook — sends commit data to the API
+
+GROVSNOTES_URL="${GROVSNOTES_URL:-http://localhost:3000}"
+
+if [ -z "$GROVSNOTES_API_KEY" ]; then
+  exit 0
+fi
+
+REPO=$(basename "$(git rev-parse --show-toplevel)")
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+HASH=$(git rev-parse HEAD)
+MSG=$(git log -1 --pretty=%B)
+
+curl -s -X POST "$GROVSNOTES_URL/api/dev-logs" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $GROVSNOTES_API_KEY" \
+  -d "{\"repo\":\"$REPO\",\"branch\":\"$BRANCH\",\"commit_hash\":\"$HASH\",\"message\":$(echo "$MSG" | jq -Rs .)}" \
+  > /dev/null 2>&1 &
