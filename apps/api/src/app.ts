@@ -5,6 +5,7 @@ import { config } from './config.js';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import Database from 'better-sqlite3';
 import itemRoutes from './routes/items.js';
+import projectRoutes from './routes/projects.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -80,6 +81,7 @@ export async function buildApp(overrides?: {
 
   // Routes
   await app.register(itemRoutes);
+  await app.register(projectRoutes);
 
   return app;
 }
