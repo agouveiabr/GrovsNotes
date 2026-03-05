@@ -35,6 +35,7 @@ export default async function searchRoutes(app: FastifyInstance) {
         .replace(/['"]/g, '')
         .split(/\s+/)
         .filter(Boolean)
+        .map(term => `${term}*`)
         .join(' ');
 
       if (searchText === '') {

@@ -27,7 +27,7 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
         <Icon className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
         <div className="flex-1 min-w-0">
           <p className="font-medium truncate">{item.title}</p>
-          {item.tags.length > 0 && (
+          {(item.tags?.length ?? 0) > 0 && (
             <div className="flex gap-1 mt-1 flex-wrap">
               {item.tags.map((tag) => (
                 <Badge key={tag.id} variant="secondary" className="text-xs">

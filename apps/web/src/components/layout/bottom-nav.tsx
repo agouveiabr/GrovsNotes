@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import { Plus, Inbox, FolderOpen, Search, Clock } from 'lucide-react';
+import { Plus, Inbox, FolderOpen, Search, Clock, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/components/theme/theme-provider';
 
 const navItems = [
   { to: '/', label: 'Capture', icon: Plus },
@@ -10,8 +11,10 @@ const navItems = [
 ];
 
 export function BottomNav() {
+  const { theme, toggleTheme } = useTheme();
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 border-t bg-background z-50">
+    <nav className="fixed bottom-0 left-0 right-0 border-t bg-background/80 backdrop-blur-lg z-50">
       <div className="flex justify-around items-center h-14 max-w-lg mx-auto">
         {navItems.map((item) => (
           <NavLink
@@ -28,6 +31,13 @@ export function BottomNav() {
             <span>{item.label}</span>
           </NavLink>
         ))}
+        <button
+          onClick={toggleTheme}
+          className="flex flex-col items-center gap-0.5 text-xs text-muted-foreground transition-colors hover:text-primary"
+        >
+          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
+        </button>
       </div>
     </nav>
   );
