@@ -4,6 +4,7 @@ import { createDb } from '@grovsnotes/db';
 import { config } from './config.js';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import Database from 'better-sqlite3';
+import itemRoutes from './routes/items.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -76,6 +77,9 @@ export async function buildApp(overrides?: {
 
   // Health check
   app.get('/api/health', async () => ({ status: 'ok' }));
+
+  // Routes
+  await app.register(itemRoutes);
 
   return app;
 }
