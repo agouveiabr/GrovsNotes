@@ -243,4 +243,108 @@ export default async function itemRoutes(app: FastifyInstance) {
       project: null,
     });
   });
+
+  // PATCH /api/items/:id — Update an item
+  app.patch('/api/items/:id', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const body = request.body as {
+      title?: string;
+      content?: string;
+      type?: string;
+      status?: string;
+      projectId?: string | null;
+    } | null;
+
+    const [existing] = await app.db
+      .select()
+      .from(items)
+      .where(eq(items.id, id));
+
+    if (!existing) {
+      return reply.status(404).send({
+        error: { code: 'NOT_FOUND', message: 'Item not found' },
+      });
+    }
+
+    const updates: Record<string, unknown> = {
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (body?.title !== undefined) {
+      if (typeof body.title !== 'string' || body.title.trim() === '') {
+        return reply.status(400).send({
+          error: { code: 'VALIDATION_ERROR', message: 'title must be non-empty' },
+        });
+      }
+
+      const { cleanTitle, tags: parsedTagNames } = parseHashtags(body.title);
+      updates.title = cleanTitle;
+
+      // Re-sync tags: delete old associations, upsert new tags, link
+      await app.db.delete(itemTags).where(eq(itemTags.itemId, id));
+      const tagRecords = await upsertTags(app.db, parsedTagNames);
+      for (const tag of tagRecords) {
+        await app.db.insert(itemTags).values({ itemId: id, tagId: tag.id });
+      }
+    }
+
+    if (body?.content !== undefined) updates.content = body.content;
+
+    if (body?.type !== undefined) {
+      if (!ITEM_TYPES.includes(body.type as ItemType)) {
+        return reply.status(400).send({
+          error: { code: 'VALIDATION_ERROR', message: `type must be one of: ${ITEM_TYPES.join(', ')}` },
+        });
+      }
+      updates.type = body.type;
+    }
+
+    if (body?.status !== undefined) {
+      if (!ITEM_STATUSES.includes(body.status as ItemStatus)) {
+        return reply.status(400).send({
+          error: { code: 'VALIDATION_ERROR', message: `status must be one of: ${ITEM_STATUSES.join(', ')}` },
+        });
+      }
+      updates.status = body.status;
+    }
+
+    if (body?.projectId !== undefined) updates.projectId = body.projectId;
+
+    await app.db.update(items).set(updates).where(eq(items.id, id));
+
+    const [updated] = await app.db
+      .select()
+      .from(items)
+      .where(eq(items.id, id));
+
+    const itemTagList = await getItemTags(app.db, id);
+
+    return reply.send({
+      ...updated,
+      tags: itemTagList,
+      project: null,
+    });
+  });
+
+  // DELETE /api/items/:id — Delete an item
+  app.delete('/api/items/:id', async (request, reply) => {
+    const { id } = request.params as { id: string };
+
+    const [existing] = await app.db
+      .select()
+      .from(items)
+      .where(eq(items.id, id));
+
+    if (!existing) {
+      return reply.status(404).send({
+        error: { code: 'NOT_FOUND', message: 'Item not found' },
+      });
+    }
+
+    // Delete tag associations first, then the item
+    await app.db.delete(itemTags).where(eq(itemTags.itemId, id));
+    await app.db.delete(items).where(eq(items.id, id));
+
+    return reply.status(204).send();
+  });
 }

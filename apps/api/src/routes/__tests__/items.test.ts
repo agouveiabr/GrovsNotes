@@ -241,3 +241,107 @@ describe('GET /api/items/:id', () => {
     expect(body.error).toBeDefined();
   });
 });
+
+describe('PATCH /api/items/:id', () => {
+  it('updates item title and re-parses hashtags', async () => {
+    const createRes = await app.inject({
+      method: 'POST',
+      url: '/api/items',
+      payload: { title: 'old title #oldtag' },
+    });
+    const { id } = createRes.json();
+
+    const res = await app.inject({
+      method: 'PATCH',
+      url: `/api/items/${id}`,
+      payload: { title: 'new title #newtag' },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.title).toBe('new title');
+    const tagNames = body.tags.map((t: { name: string }) => t.name);
+    expect(tagNames).toContain('newtag');
+    expect(tagNames).not.toContain('oldtag');
+  });
+
+  it('updates status without affecting tags', async () => {
+    const createRes = await app.inject({
+      method: 'POST',
+      url: '/api/items',
+      payload: { title: 'task #important' },
+    });
+    const { id } = createRes.json();
+
+    const res = await app.inject({
+      method: 'PATCH',
+      url: `/api/items/${id}`,
+      payload: { status: 'doing' },
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json().status).toBe('doing');
+    expect(res.json().tags).toHaveLength(1);
+    expect(res.json().tags[0].name).toBe('important');
+  });
+
+  it('updates type', async () => {
+    const createRes = await app.inject({
+      method: 'POST',
+      url: '/api/items',
+      payload: { title: 'convert me' },
+    });
+    const { id } = createRes.json();
+
+    const res = await app.inject({
+      method: 'PATCH',
+      url: `/api/items/${id}`,
+      payload: { type: 'task' },
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json().type).toBe('task');
+  });
+
+  it('returns 404 for unknown id', async () => {
+    const res = await app.inject({
+      method: 'PATCH',
+      url: '/api/items/nonexistent-id',
+      payload: { title: 'new' },
+    });
+    expect(res.statusCode).toBe(404);
+  });
+});
+
+describe('DELETE /api/items/:id', () => {
+  it('deletes item and its tag associations', async () => {
+    const createRes = await app.inject({
+      method: 'POST',
+      url: '/api/items',
+      payload: { title: 'to delete #temp' },
+    });
+    const { id } = createRes.json();
+
+    const res = await app.inject({
+      method: 'DELETE',
+      url: `/api/items/${id}`,
+    });
+
+    expect(res.statusCode).toBe(204);
+
+    // Verify it's gone
+    const getRes = await app.inject({
+      method: 'GET',
+      url: `/api/items/${id}`,
+    });
+    expect(getRes.statusCode).toBe(404);
+  });
+
+  it('returns 404 for unknown id', async () => {
+    const res = await app.inject({
+      method: 'DELETE',
+      url: '/api/items/nonexistent-id',
+    });
+    expect(res.statusCode).toBe(404);
+  });
+});
