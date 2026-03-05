@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useItem, useUpdateItem, useDeleteItem } from '@/hooks/use-items';
 import { useProjects } from '@/hooks/use-projects';
 import { Input } from '@/components/ui/input';
@@ -22,8 +22,10 @@ import {
 } from '@/components/ui/dialog';
 import { ITEM_TYPES, ITEM_STATUSES, type ItemType, type ItemStatus } from '@grovsnotes/shared';
 import { useNavigate } from 'react-router-dom';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Eye, PencilLine, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ItemDetailProps {
   id: string;
@@ -38,7 +40,9 @@ export function ItemDetail({ id }: ItemDetailProps) {
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Sync state when data loads
   useEffect(() => {
@@ -47,6 +51,13 @@ export function ItemDetail({ id }: ItemDetailProps) {
       setContent(item.content || '');
     }
   }, [item]);
+
+  // Focus textarea when entering edit mode if it's not empty
+  useEffect(() => {
+    if (isEditing && contentTextareaRef.current) {
+      contentTextareaRef.current.focus();
+    }
+  }, [isEditing]);
 
   if (isLoading) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
   if (error || !item) return <div className="p-4 text-center text-destructive">Error loading item</div>;
@@ -88,12 +99,20 @@ export function ItemDetail({ id }: ItemDetailProps) {
     });
   };
 
+  const toggleEditMode = () => {
+    if (isEditing) {
+      handleBlur('title', title);
+      handleBlur('content', content);
+    }
+    setIsEditing(!isEditing);
+  };
+
   return (
-    <div className="flex flex-col h-full bg-background">
-      <div className="flex items-center justify-between p-4 border-b">
+    <div className="flex flex-col h-full bg-background pb-8">
+      <div className="flex items-center justify-between p-4 border-b shrink-0">
         <div className="flex items-center space-x-2">
           <Select value={item.type} onValueChange={handleTypeChange}>
-            <SelectTrigger className="w-[120px] h-8 text-xs">
+            <SelectTrigger className="w-[100px] h-8 text-xs">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
@@ -104,7 +123,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
           </Select>
           
           <Select value={item.status} onValueChange={handleStatusChange}>
-            <SelectTrigger className="w-[120px] h-8 text-xs">
+            <SelectTrigger className="w-[110px] h-8 text-xs">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -115,7 +134,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
           </Select>
 
           <Select value={item.projectId || 'none'} onValueChange={handleProjectChange}>
-            <SelectTrigger className="w-[140px] h-8 text-xs">
+            <SelectTrigger className="w-[120px] h-8 text-xs">
               <SelectValue placeholder="Project" />
             </SelectTrigger>
             <SelectContent>
@@ -127,43 +146,76 @@ export function ItemDetail({ id }: ItemDetailProps) {
           </Select>
         </div>
 
-        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Delete Item</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete this item? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="mt-4">
-              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-              <Button variant="destructive" onClick={handleDelete}>Delete</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className={`h-8 w-8 ${isEditing ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}
+            onClick={toggleEditMode}
+            title={isEditing ? 'Done editing' : 'Edit note'}
+          >
+            {isEditing ? <Check className="h-4 w-4" /> : <PencilLine className="h-4 w-4" />}
+          </Button>
+
+          <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Item</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete this item? This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="mt-4">
+                <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
+                <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
-      <div className="p-4 flex flex-col flex-1 overflow-hidden space-y-4">
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onBlur={() => handleBlur('title', title)}
-          className="text-xl font-semibold border-0 px-0 shadow-none focus-visible:ring-0"
-          placeholder="Item title..."
-        />
-        
-        <Textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onBlur={() => handleBlur('content', content)}
-          className="flex-1 resize-none border-0 px-0 shadow-none focus-visible:ring-0 text-base"
-          placeholder="Add details, notes, or content here..."
-        />
+      <div className="p-4 flex flex-col flex-1 overflow-auto relative">
+        {isEditing ? (
+          <div className="flex flex-col h-full space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={() => handleBlur('title', title)}
+              className="text-xl font-semibold border-0 px-0 shadow-none focus-visible:ring-0"
+              placeholder="Item title..."
+            />
+            
+            <Textarea
+              ref={contentTextareaRef}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              onBlur={() => handleBlur('content', content)}
+              className="flex-1 resize-none border-0 px-0 shadow-none focus-visible:ring-0 text-base"
+              placeholder="Add details, notes, or markdown content here..."
+            />
+          </div>
+        ) : (
+          <div 
+            className="flex flex-col h-full animate-in fade-in zoom-in-95 duration-200 cursor-text"
+            onClick={() => setIsEditing(true)}
+          >
+            <h1 className="text-2xl font-bold mb-4 text-foreground">{title}</h1>
+            {content ? (
+              <div className="prose prose-zinc dark:prose-invert prose-sm sm:prose-base max-w-none prose-p:leading-relaxed prose-pre:bg-muted prose-pre:text-muted-foreground">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {content}
+                </ReactMarkdown>
+              </div>
+            ) : (
+              <p className="text-muted-foreground italic mt-2">No content. Click to add details...</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
