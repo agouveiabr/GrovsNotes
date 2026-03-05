@@ -75,7 +75,7 @@ export const api = {
     },
   },
   devLogs: {
-    list(params?: { repo?: string; branch?: string; from?: string; to?: string }) {
+    list(params?: { repo?: string; branch?: string; from?: string; to?: string; limit?: number; cursor?: string }) {
       const search = new URLSearchParams();
       if (params) {
         Object.entries(params).forEach(([key, value]) => {

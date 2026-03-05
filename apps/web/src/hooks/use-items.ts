@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { ItemType, ItemStatus } from '@grovsnotes/shared';
 
-export function useItems(params?: { type?: ItemType; status?: ItemStatus; project?: string; tag?: string }) {
+export function useItems(params?: Parameters<typeof api.items.list>[0]) {
   return useQuery({
     queryKey: ['items', params],
     queryFn: () => api.items.list(params),
