@@ -1,0 +1,17 @@
+your-domain.com {
+    root * /var/www/grovsnotes/apps/web/dist
+    
+    # Proxy API requests to Node.js / Fastify backend
+    handle /api/* {
+        reverse_proxy 127.0.0.1:3000
+    }
+
+    # Serve static SPA for all other requests
+    handle {
+        try_files {path} /index.html
+        file_server
+    }
+
+    # Optional: Gzip compression
+    encode gzip
+}

@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dialog';
 import { ITEM_TYPES, ITEM_STATUSES, type ItemType, type ItemStatus } from '@grovsnotes/shared';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Eye, PencilLine, Check } from 'lucide-react';
+import { Trash2, PencilLine, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';

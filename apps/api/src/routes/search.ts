@@ -63,7 +63,7 @@ export default async function searchRoutes(app: FastifyInstance) {
     }
 
     if (parsed.filters.type) {
-      conditions.push(eq(items.type, parsed.filters.type));
+      conditions.push(eq(items.type, parsed.filters.type as any));
     }
 
     if (parsed.filters.project) {

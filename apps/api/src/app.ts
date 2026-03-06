@@ -67,7 +67,7 @@ export async function buildApp(overrides?: {
   }
 
   // Error handler
-  app.setErrorHandler((error, _request, reply) => {
+  app.setErrorHandler((error: any, _request, reply) => {
     app.log.error(error);
     const statusCode = error.statusCode || 500;
     reply.status(statusCode).send({

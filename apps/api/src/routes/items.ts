@@ -140,10 +140,10 @@ export default async function itemRoutes(app: FastifyInstance) {
     const conditions: ReturnType<typeof eq>[] = [];
 
     if (query.status) {
-      conditions.push(eq(items.status, query.status));
+      conditions.push(eq(items.status, query.status as any));
     }
     if (query.type) {
-      conditions.push(eq(items.type, query.type));
+      conditions.push(eq(items.type, query.type as any));
     }
     if (query.project) {
       conditions.push(eq(items.projectId, query.project));
