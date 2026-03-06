@@ -8,30 +8,45 @@ export default defineConfig({
   plugins: [
     react(), 
     tailwindcss(),
+    // Disable PWA when building for Tauri
+    ...(process.env.TAURI_ENV_TARGET_TRIPLE ? [] : [
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'GrovsNotes',
         short_name: 'GrovsNotes',
-        description: 'Developer project tracker and inbox',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        start_url: '/',
         display: 'standalone',
-        icons: [
+        theme_color: '#ffffff',
+        background_color: '#ffffff'
+        // Icons will be added in a subsequent step
+      },
+      workbox: {
+        runtimeCaching: [
           {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
+            urlPattern: /\/api\/.*$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              networkTimeoutSeconds: 10,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24
+              }
+            }
           },
           {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
+            urlPattern: /^\/.*\.(?:png|jpg|jpeg|svg|gif|webp|woff2|woff|ttf)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'static-resources',
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 }
+            }
           }
         ]
       }
     })
+    ])
   ],
   resolve: {
     alias: {

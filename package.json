@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --parallel --filter './apps/*' dev",
+    "desktop:dev": "pnpm --filter @grovsnotes/desktop tauri dev",
+    "desktop:build": "pnpm --filter @grovsnotes/desktop tauri build",
     "build": "pnpm --filter './packages/*' build && pnpm --filter './apps/*' build",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
