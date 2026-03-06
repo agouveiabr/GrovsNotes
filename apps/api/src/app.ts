@@ -32,6 +32,7 @@ export async function buildApp(overrides?: {
 
   await app.register(cors, {
     origin: config.corsOrigin,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
   const db = createDb(dbPath);
