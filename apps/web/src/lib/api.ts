@@ -11,7 +11,9 @@ import type {
 // When running inside Tauri, window.__TAURI__ is defined (if configured) or we can check the user agent / protocol.
 // A simpler way: Tauri intercepts localhost or tauri:// protocols.
 const isTauri = typeof window !== 'undefined' && (window as any).__TAURI_INTERNALS__ !== undefined;
-const BASE_URL = isTauri ? 'https://grovsnotes.duckdns.org/api' : '/api';
+const BASE_URL = isTauri
+  ? (import.meta.env.VITE_API_URL ?? 'https://grovsnotes.duckdns.org/api')
+  : '/api';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const headers: Record<string, string> = {};
