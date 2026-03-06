@@ -5,7 +5,7 @@
     "dev": "pnpm --parallel --filter './apps/*' dev",
     "desktop:dev": "pnpm --filter @grovsnotes/desktop tauri dev",
     "desktop:build": "pnpm --filter @grovsnotes/desktop tauri build",
-    "build": "pnpm --filter './packages/*' --if-present build && pnpm --filter './apps/*' --if-present build",
+    "build": "pnpm --filter './packages/*' --if-present build && pnpm --filter './apps/*' --exclude @grovsnotes/desktop --if-present build",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "db:generate": "pnpm --filter @grovsnotes/db generate",
