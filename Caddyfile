@@ -1,5 +1,5 @@
 grovsnotes.duckdns.org {
-    root * /var/www/grovsnotes/apps/web/dist
+    root * /home/agouveialins/GrovsNotes/apps/web/dist
     
     # Proxy API requests to Node.js / Fastify backend
     handle /api/* {
