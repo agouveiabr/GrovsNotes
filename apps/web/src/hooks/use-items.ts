@@ -40,3 +40,9 @@ export function useDeleteItem() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['items'] }); },
   });
 }
+
+export function useRefineItem() {
+  return useMutation({
+    mutationFn: api.items.refine,
+  });
+}

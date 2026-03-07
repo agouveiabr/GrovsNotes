@@ -69,6 +69,9 @@ export const api = {
     delete(id: string) {
       return request<void>(`/items/${id}`, { method: 'DELETE' });
     },
+    refine(id: string) {
+      return request<{ title: string; content: string }>(`/items/${id}/refine`, { method: 'POST' });
+    },
   },
   projects: {
     list() {

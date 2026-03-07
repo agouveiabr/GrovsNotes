@@ -22,10 +22,12 @@ import {
 } from '@/components/ui/dialog';
 import { ITEM_TYPES, ITEM_STATUSES, type ItemType, type ItemStatus } from '@grovsnotes/shared';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, PencilLine, Check } from 'lucide-react';
+import { Trash2, PencilLine, Check, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useRefineItem } from '@/hooks/use-items';
+import { AIPreviewDialog } from './ai-preview-dialog';
 
 interface ItemDetailProps {
   id: string;
@@ -42,7 +44,11 @@ export function ItemDetail({ id }: ItemDetailProps) {
   const [content, setContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [showAIPreview, setShowAIPreview] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState<{ title: string; content: string } | null>(null);
+  
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const refineItem = useRefineItem();
 
   // Sync state when data loads
   useEffect(() => {
@@ -107,6 +113,35 @@ export function ItemDetail({ id }: ItemDetailProps) {
     setIsEditing(!isEditing);
   };
 
+  const handleAIRefine = async () => {
+    setShowAIPreview(true);
+    setAiSuggestion(null);
+    try {
+      const result = await refineItem.mutateAsync(id);
+      setAiSuggestion(result);
+    } catch (err) {
+      toast.error('AI refinement failed');
+      setShowAIPreview(false);
+    }
+  };
+
+  const handleAIConfirm = async () => {
+    if (!aiSuggestion) return;
+    try {
+      await updateItem.mutateAsync({
+        id,
+        title: aiSuggestion.title,
+        content: aiSuggestion.content
+      });
+      setTitle(aiSuggestion.title);
+      setContent(aiSuggestion.content);
+      toast.success('Note refined!');
+      setShowAIPreview(false);
+    } catch (err) {
+      toast.error('Failed to update note');
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-background pb-8">
       <div className="flex items-center justify-between p-4 border-b shrink-0">
@@ -155,6 +190,17 @@ export function ItemDetail({ id }: ItemDetailProps) {
             title={isEditing ? 'Done editing' : 'Edit note'}
           >
             {isEditing ? <Check className="h-4 w-4" /> : <PencilLine className="h-4 w-4" />}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
+            onClick={handleAIRefine}
+            disabled={refineItem.isPending}
+            title="Refine with AI"
+          >
+            <Sparkles className={`h-4 w-4 ${refineItem.isPending ? 'animate-pulse text-primary' : ''}`} />
           </Button>
 
           <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -217,6 +263,15 @@ export function ItemDetail({ id }: ItemDetailProps) {
           </div>
         )}
       </div>
+
+      <AIPreviewDialog
+        isOpen={showAIPreview}
+        onClose={() => setShowAIPreview(false)}
+        onConfirm={handleAIConfirm}
+        original={{ title: item.title, content: item.content ?? undefined }}
+        suggested={aiSuggestion}
+        isLoading={refineItem.isPending}
+      />
     </div>
   );
 }
