@@ -7,7 +7,7 @@ module.exports = {
       cwd: './apps/api',
       env_production: {
         NODE_ENV: 'production',
-        PORT: 3001,
+        PORT: 3000,
         HOST: '0.0.0.0',
         DATABASE_URL: '../../data/grovsnotes.db'
       }
