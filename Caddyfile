@@ -3,7 +3,7 @@ your-domain.com {
     
     # Proxy API requests to Node.js / Fastify backend
     handle /api/* {
-        reverse_proxy 127.0.0.1:3000
+        reverse_proxy 127.0.0.1:3001
     }
 
     # Serve static SPA for all other requests

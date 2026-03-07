@@ -45,26 +45,6 @@ export async function buildApp(overrides?: {
       import.meta.url
     ).pathname;
     migrate(db, { migrationsFolder: migrationsPath });
-
-    // Create FTS table for in-memory DB
-    const rawDb = (db as any).session?.client as Database.Database;
-    if (rawDb) {
-      rawDb.exec(`
-        CREATE VIRTUAL TABLE IF NOT EXISTS items_fts USING fts5(
-          title, content, content='items', content_rowid='rowid'
-        );
-        CREATE TRIGGER IF NOT EXISTS items_fts_insert AFTER INSERT ON items BEGIN
-          INSERT INTO items_fts(rowid, title, content) VALUES (NEW.rowid, NEW.title, NEW.content);
-        END;
-        CREATE TRIGGER IF NOT EXISTS items_fts_delete AFTER DELETE ON items BEGIN
-          INSERT INTO items_fts(items_fts, rowid, title, content) VALUES('delete', OLD.rowid, OLD.title, OLD.content);
-        END;
-        CREATE TRIGGER IF NOT EXISTS items_fts_update AFTER UPDATE ON items BEGIN
-          INSERT INTO items_fts(items_fts, rowid, title, content) VALUES('delete', OLD.rowid, OLD.title, OLD.content);
-          INSERT INTO items_fts(rowid, title, content) VALUES (NEW.rowid, NEW.title, NEW.content);
-        END;
-      `);
-    }
   }
 
   // Error handler
