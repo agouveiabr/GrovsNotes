@@ -10,6 +10,7 @@ import {
   type Tag,
 } from '@grovsnotes/shared';
 import { parseHashtags } from '../lib/hashtags.js';
+import { refineNote } from '../lib/ai-service.js';
 import type { Db } from '@grovsnotes/db';
 
 // ---------------------------------------------------------------------------
@@ -242,6 +243,31 @@ export default async function itemRoutes(app: FastifyInstance) {
       tags: itemTagList,
       project: null,
     });
+  });
+
+  // POST /api/items/:id/refine — Get AI refinement preview
+  app.post('/api/items/:id/refine', async (request, reply) => {
+    const { id } = request.params as { id: string };
+
+    const [item] = await app.db
+      .select()
+      .from(items)
+      .where(eq(items.id, id));
+
+    if (!item) {
+      return reply.status(404).send({
+        error: { code: 'NOT_FOUND', message: 'Item not found' },
+      });
+    }
+
+    try {
+      const refined = await refineNote(item.title, item.content ?? '');
+      return reply.send(refined);
+    } catch (error: any) {
+      return reply.status(500).send({
+        error: { code: 'AI_ERROR', message: error.message || 'AI refinement failed' },
+      });
+    }
   });
 
   // PATCH /api/items/:id — Update an item
