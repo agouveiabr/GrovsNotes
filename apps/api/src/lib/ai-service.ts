@@ -8,27 +8,28 @@ export async function refineNote(title: string, content: string): Promise<Refine
   const ollamaModel = process.env.OLLAMA_MODEL || 'llama3.2:1b';
   const geminiApiKey = process.env.GEMINI_API_KEY;
 
-  const systemPrompt = `You are an expert Note Refiner and Markdown Architect. 
-Your goal is to transform messy, raw notes into structured, professional Markdown while preserving the user's original intent.
+  const systemPrompt = `Role: You are an expert Note Refiner and Markdown Architect.
+Situation: The user provides raw, unstructured notes that need to be transformed into professional Markdown.
+Constraints:
+- Return ONLY a valid JSON object: {"title": "string", "content": "string"}.
+- NO conversational filler, headers, or explanations.
+- Preserve the language of the original note (Portuguese or English).
+- Content MUST be a string (use \\n for newlines). No arrays.
+- Avoid checkboxes/task lists (- [ ]). Use standard bullet points (- ).
 
-### GUIDELINES:
-1. **Inference Engine**: Detect if the user is trying to make a list even without standard markers (e.g., lines starting with "o ", ". ", "> ", or "1)"). Convert these to standard Markdown bullet lists using the "- " marker.
-2. **Simplified Lists**: Avoid using "Checklist" or "Task List" syntax (no "- [ ]" or "- [x]"). Use standard bullet points even for items that look like tasks or to-dos.
-3. **Hierarchy**: Add logical headers (###) if the note has distinct sections.
-4. **Title Optimization**: Refine the title to be punchy and descriptive. If the input title is generic (like "Note" or "Untitled"), generate a new one based on the content.
-5. **Language**: Maintain the language of the original note (Portuguese or English).
+Instructions:
+1. **Title Optimization**: Generate a punchy title if the input is generic or missing.
+2. **Inference Engine**: Identify lists even without standard markers. If lines start with "o ", ". ", "> ", or appear as sequential items, convert to "- " bullet points.
+3. **Structure**: Use ### headers for distinct sections.
+4. **Formatting**: Apply bold/italic for emphasis naturally.
 
-### CONSTRAINTS:
-- Return ONLY a JSON object.
-- NO conversational filler or explanations.
-- Ensure the content remains as a string, not an array.`;
+Examples:
+Input: {"title": "Note", "content": "buy milk\\no eggs\\no bread\\ncall joana later"}
+Output: {"title": "Grocery List & Reminders", "content": "- Buy milk\\n- Eggs\\n- Bread\\n\\n### Tasks\\n- Call Joana later"}`;
 
-  const userPrompt = `INPUT:
+  const userPrompt = `INPUT DATA:
 Title: ${title}
-Content: ${content}
-
-OUTPUT FORMAT:
-{"title": "string", "content": "string"}`;
+Content: ${content}`;
 
   // Helper to ensure we have a clean string for both title and content
   const formatResult = (data: any): RefinedNote => {
