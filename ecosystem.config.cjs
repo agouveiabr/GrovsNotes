@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'grovsnotes-api',
-      script: 'npx',
-      args: 'tsx src/index.ts',
+      script: 'npm',
+      args: 'start',
       cwd: './apps/api',
       env_production: {
         NODE_ENV: 'production',
