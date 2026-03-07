@@ -119,6 +119,7 @@ If you already have GrovsNotes running on GCP/VPS and just need to apply these A
 1. **Pull Changes**: `git pull` on your server.
 2. **Setup VPN**: Install Tailscale on the server: `curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up`.
 3. **Update .env**: `nano apps/api/.env`
+   - *If `nano` is not found:* install it with `sudo apt update && sudo apt install nano -y` or use `vi`.
    - Set `PORT=3001`
    - Set `OLLAMA_URL=http://your-mac-tailscale-ip:11434`
 4. **Update Caddy**: `sudo nano /etc/caddy/Caddyfile`
