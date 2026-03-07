@@ -1,4 +1,4 @@
-your-domain.com {
+grovsnotes.duckdns.org {
     root * /var/www/grovsnotes/apps/web/dist
     
     # Proxy API requests to Node.js / Fastify backend
