@@ -5,8 +5,10 @@ export interface RefinedNote {
 
 export async function refineNote(title: string, content: string): Promise<RefinedNote> {
   const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
-  const ollamaModel = process.env.OLLAMA_MODEL || 'llama3.2:1b';
+  const ollamaModel = process.env.OLLAMA_MODEL || 'llama3.2:3b';
   const geminiApiKey = process.env.GEMINI_API_KEY;
+  const geminiModel = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+  const TIMEOUT_MS = 45000; // 45 seconds
 
   const systemPrompt = `Role: You are an expert Note Refiner and Markdown Architect.
 Situation: The user provides raw, unstructured notes that need to be transformed into professional Markdown.
@@ -31,7 +33,19 @@ Output: {"title": "Grocery List & Reminders", "content": "- Buy milk\\n- Eggs\\n
 Title: ${title}
 Content: ${content}`;
 
-  // Helper to ensure we have a clean string for both title and content
+  // Robustly extract and parse JSON from string
+  const parseSafeJSON = (raw: string): any => {
+    try {
+      const trimmed = raw.trim();
+      // If AI wrapped in code blocks, extract content
+      const jsonMatch = trimmed.match(/```json?\s*([\s\S]*?)\s*```/);
+      const cleanJson = jsonMatch ? jsonMatch[1].trim() : trimmed;
+      return JSON.parse(cleanJson);
+    } catch (e) {
+      throw new Error(`Failed to parse AI response as JSON: ${raw.substring(0, 100)}...`);
+    }
+  };
+
   const formatResult = (data: any): RefinedNote => {
     const ensureString = (val: any) => {
       if (Array.isArray(val)) return val.join('\n');
@@ -45,9 +59,13 @@ Content: ${content}`;
 
   // 1. Try Ollama first (Local)
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
     const response = await fetch(`${ollamaUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
       body: JSON.stringify({
         model: ollamaModel,
         messages: [
@@ -58,23 +76,28 @@ Content: ${content}`;
         format: 'json',
       }),
     });
+    clearTimeout(timeout);
 
     if (response.ok) {
       const data = await response.json() as any;
-      const refined = formatResult(JSON.parse(data.message.content));
+      const refined = formatResult(parseSafeJSON(data.message.content));
       if (refined.title && refined.content) return refined;
     }
   } catch (error) {
-    console.warn('Ollama refiner failed, trying fallback...', error);
+    console.warn('Ollama refiner failed or timed out, trying fallback...', error);
   }
 
   // 2. Try Gemini fallback if API key is provided
   if (geminiApiKey) {
     try {
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiApiKey}`;
       const response = await fetch(geminiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           contents: [{ parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }],
           generationConfig: {
@@ -83,19 +106,20 @@ Content: ${content}`;
           }
         }),
       });
+      clearTimeout(timeout);
 
       if (response.ok) {
         const data = await response.json() as any;
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) {
-          const refined = formatResult(JSON.parse(text));
+          const refined = formatResult(parseSafeJSON(text));
           if (refined.title && refined.content) return refined;
         }
       }
     } catch (error) {
-      console.error('Gemini refiner fallback failed:', error);
+      console.error('Gemini refiner fallback failed or timed out:', error);
     }
   }
 
-  throw new Error('AI Refinement failed (Ollama and Gemini both unavailable or returned invalid data)');
+  throw new Error('AI Refinement failed (All providers unavailable or returned invalid data)');
 }
