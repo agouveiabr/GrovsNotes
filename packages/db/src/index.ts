@@ -1,2 +1,2 @@
-export * from './schema.js';
-export { createDb, createFtsTable, type Db } from './connection.js';
+export * from './schema';
+export { createDb, createFtsTable, type Db } from './connection';

@@ -14,7 +14,9 @@ async function start() {
   createFtsTable(config.databaseUrl);
 
   try {
+    console.log(`Starting server on ${config.host}:${config.port}...`);
     await app.listen({ port: config.port, host: config.host });
+    console.log(`Server is now listening!`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
