@@ -12,8 +12,8 @@ export async function refineNote(title: string, content: string): Promise<Refine
 Your goal is to transform messy, raw notes into structured, professional Markdown while preserving the user's original intent.
 
 ### GUIDELINES:
-1. **Inference Engine**: Detect if the user is trying to make a list even without standard markers (e.g., lines starting with "o ", ". ", "> ", or "1)"). Convert these to valid Markdown lists.
-2. **Task Conversion**: Identify task markers like "[]", "[ ]", "( )", "task:", or "[x]" and normalize them to GitHub-flavored Markdown task lists: "- [ ]" or "- [x]".
+1. **Inference Engine**: Detect if the user is trying to make a list even without standard markers (e.g., lines starting with "o ", ". ", "> ", or "1)"). Convert these to standard Markdown bullet lists using the "- " marker.
+2. **Simplified Lists**: Avoid using "Checklist" or "Task List" syntax (no "- [ ]" or "- [x]"). Use standard bullet points even for items that look like tasks or to-dos.
 3. **Hierarchy**: Add logical headers (###) if the note has distinct sections.
 4. **Title Optimization**: Refine the title to be punchy and descriptive. If the input title is generic (like "Note" or "Untitled"), generate a new one based on the content.
 5. **Language**: Maintain the language of the original note (Portuguese or English).
