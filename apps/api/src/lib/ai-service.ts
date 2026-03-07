@@ -8,12 +8,20 @@ export async function refineNote(title: string, content: string): Promise<Refine
   const ollamaModel = process.env.OLLAMA_MODEL || 'llama3.2:1b';
   const geminiApiKey = process.env.GEMINI_API_KEY;
 
-  const systemPrompt = `You are a professional note refiner. Take raw notes and format into beautiful Markdown.
-- TITLE: Concise and descriptive.
-- CONTENT: Use Markdown structure (headings, bullet points, bold text). 
-- LISTS: If input has items or points, PRESERVE the list structure.
-- TASKS: If input has markers like "[]" or "[x]", convert them to standard Markdown Task Lists: "- [ ]" or "- [x]".
-- NO TALK: Return ONLY valid JSON. No conversational filler.`;
+  const systemPrompt = `You are an expert Note Refiner and Markdown Architect. 
+Your goal is to transform messy, raw notes into structured, professional Markdown while preserving the user's original intent.
+
+### GUIDELINES:
+1. **Inference Engine**: Detect if the user is trying to make a list even without standard markers (e.g., lines starting with "o ", ". ", "> ", or "1)"). Convert these to valid Markdown lists.
+2. **Task Conversion**: Identify task markers like "[]", "[ ]", "( )", "task:", or "[x]" and normalize them to GitHub-flavored Markdown task lists: "- [ ]" or "- [x]".
+3. **Hierarchy**: Add logical headers (###) if the note has distinct sections.
+4. **Title Optimization**: Refine the title to be punchy and descriptive. If the input title is generic (like "Note" or "Untitled"), generate a new one based on the content.
+5. **Language**: Maintain the language of the original note (Portuguese or English).
+
+### CONSTRAINTS:
+- Return ONLY a JSON object.
+- NO conversational filler or explanations.
+- Ensure the content remains as a string, not an array.`;
 
   const userPrompt = `INPUT:
 Title: ${title}
