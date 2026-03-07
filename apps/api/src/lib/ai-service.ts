@@ -10,28 +10,26 @@ export async function refineNote(title: string, content: string): Promise<Refine
   const geminiModel = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
   const TIMEOUT_MS = 45000; // 45 seconds
 
-  const systemPrompt = `Role: You are an expert Note Refiner and Markdown Architect.
-Situation: The user provides raw, unstructured notes that need to be transformed into professional Markdown.
-Constraints:
-- Return ONLY a valid JSON object: {"title": "string", "content": "string"}.
-- NO conversational filler, headers, or explanations.
-- Preserve the language of the original note (Portuguese or English).
-- Content MUST be a string (use \\n for newlines). No arrays.
-- Avoid checkboxes/task lists (- [ ]). Use standard bullet points (- ).
+  const systemPrompt = `Role: Precise Markdown Formatter.
+Task: Convert raw text to Markdown structure using JSON.
 
-Instructions:
-1. **Title Optimization**: Generate a punchy title if the input is generic or missing.
-2. **Inference Engine**: Identify lists even without standard markers. If lines start with "o ", ". ", "> ", or appear as sequential items, convert to "- " bullet points.
-3. **Structure**: Use ### headers for distinct sections.
-4. **Formatting**: Apply bold/italic for emphasis naturally.
+### MANDATORY RULES:
+1. **Strict Content Preservation**: NEVER paraphrase or "improve" the user's text. DO NOT change words (e.g., "talvez adicionar" must STAY "talvez adicionar"). Keep the user's exact vocabulary, terminology, and casing.
+2. **Structural Mapping**: Only add Markdown syntax (### Headers, - Bullet points).
+3. **No Interactivity**: Never use "- [ ]" or "- [x]". Use standard "- " bullets for every list item, even tasks.
+4. **List Detection**: Convert line markers like "1. ", "o ", "> ", "[] ", or sequential items into standard "- " bullets.
+5. **Language**: strictly stay in the original language (Portuguese/English).
+6. **Output**: Return ONLY a JSON object with "title" and "content".
 
-Examples:
-Input: {"title": "Note", "content": "buy milk\\no eggs\\no bread\\ncall joana later"}
-Output: {"title": "Grocery List & Reminders", "content": "- Buy milk\\n- Eggs\\n- Bread\\n\\n### Tasks\\n- Call Joana later"}`;
+### EXAMPLE:
+Input: {"title": "ideias app", "content": "pegar texto\n[] mandar pra ia\ntalvez adicionar: exportar md"}
+Output: {"title": "ideias app", "content": "- pegar texto\\n- mandar pra ia\\n- talvez adicionar: exportar md"}`;
 
-  const userPrompt = `INPUT DATA:
-Title: ${title}
-Content: ${content}`;
+  const userPrompt = `USER_INPUT:
+<title>${title}</title>
+<content>${content}</content>
+
+FORMAT DATA NOW:`;
 
   // Robustly extract and parse JSON from string
   const parseSafeJSON = (raw: string): any => {
