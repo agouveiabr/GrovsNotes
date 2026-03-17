@@ -1,24 +1,32 @@
 import { useState } from 'react';
-import { useProjects, useCreateProject } from '@/hooks/use-projects';
+import { useProjects, useCreateProject } from '@/hooks/use-projects-convex';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 export function ProjectList() {
-  const { data: projects, isLoading } = useProjects();
+  const projects = useProjects();
   const createProject = useCreateProject();
   const navigate = useNavigate();
   const [newProjectName, setNewProjectName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
-  if (isLoading) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
+  if (projects === undefined) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProjectName.trim()) return;
-    createProject.mutate(
-      { name: newProjectName.trim() },
-      { onSuccess: () => setNewProjectName('') }
-    );
+    try {
+      setIsCreating(true);
+      await createProject({ name: newProjectName.trim() });
+      setNewProjectName('');
+      toast.success('Project created');
+    } catch {
+      toast.error('Failed to create project');
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -31,13 +39,13 @@ export function ProjectList() {
           value={newProjectName} 
           onChange={(e) => setNewProjectName(e.target.value)} 
         />
-        <Button type="submit" disabled={!newProjectName.trim() || createProject.isPending}>
+        <Button type="submit" disabled={!newProjectName.trim() || isCreating}>
           Add
         </Button>
       </form>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        {projects?.map((project) => (
+        {projects?.map((project: any) => (
           <button
             key={project.id}
             onClick={() => navigate(`/projects/${project.id}`)}

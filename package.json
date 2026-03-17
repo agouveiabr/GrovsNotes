@@ -2,14 +2,15 @@
   "name": "grovsnotes",
   "private": true,
   "scripts": {
-    "dev": "pnpm --parallel --filter './apps/*' dev",
+    "dev": "pnpm --parallel --filter './apps/web' --filter './apps/desktop' dev",
     "desktop:dev": "pnpm --filter @grovsnotes/desktop tauri dev",
     "desktop:build": "pnpm --filter @grovsnotes/desktop tauri build",
-    "build": "pnpm --filter './packages/*' --if-present build && pnpm --filter './apps/*' --filter '!@grovsnotes/desktop' --if-present build",
+    "build": "pnpm --filter './apps/*' --filter '!@grovsnotes/desktop' --if-present build",
     "test": "pnpm -r test",
-    "lint": "pnpm -r lint",
-    "db:generate": "pnpm --filter @grovsnotes/db generate",
-    "db:migrate": "pnpm --filter @grovsnotes/db migrate"
+    "lint": "pnpm -r lint"
+  },
+  "dependencies": {
+    "convex": "^1.15.0"
   },
   "engines": {
     "node": ">=22",

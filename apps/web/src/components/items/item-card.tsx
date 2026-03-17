@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import type { ItemWithTags } from '@grovsnotes/shared';
 import { Lightbulb, CheckSquare, FileText, Bug, FlaskConical, Sparkles, Loader2 } from 'lucide-react';
-import { useRefineItem, useUpdateItem } from '@/hooks/use-items';
+import { useRefineItem, useUpdateItem } from '@/hooks/use-items-convex';
 import { useState } from 'react';
 import { AIPreviewDialog } from './ai-preview-dialog';
 import { toast } from 'sonner';
@@ -24,30 +24,30 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
   const refine = useRefineItem();
   const update = useUpdateItem();
   const [showPreview, setShowPreview] = useState(false);
+  const [isRefining, setIsRefining] = useState(false);
   const [suggestion, setSuggestion] = useState<{ title: string; content: string } | null>(null);
 
   const handleRefine = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowPreview(true);
     setSuggestion(null);
+    setIsRefining(true);
     try {
-      const result = await refine.mutateAsync(item.id);
+      const result = await refine({ title: item.title, content: item.content ?? '' });
       setSuggestion(result);
     } catch (err) {
       console.error(err);
       toast.error('AI refinement failed');
       setShowPreview(false);
+    } finally {
+      setIsRefining(false);
     }
   };
 
   const handleConfirm = async () => {
     if (!suggestion) return;
     try {
-      await update.mutateAsync({
-        id: item.id,
-        title: suggestion.title,
-        content: suggestion.content
-      });
+      await update({ id: item.id, title: suggestion.title, content: suggestion.content });
       toast.success('Note refined!');
       setShowPreview(false);
     } catch (err) {
@@ -92,11 +92,11 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
             </span>
             <button
               onClick={handleRefine}
-              disabled={refine.isPending}
+              disabled={isRefining}
               className="p-1 rounded-md opacity-0 group-hover:opacity-100 hover:bg-primary/10 hover:text-primary transition-all text-muted-foreground"
               title="Refine with AI"
             >
-              {refine.isPending ? (
+              {isRefining ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
                 <Sparkles className="h-3.5 w-3.5" />
@@ -112,7 +112,7 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
         onConfirm={handleConfirm}
         original={{ title: item.title, content: item.content ?? undefined }}
         suggested={suggestion}
-        isLoading={refine.isPending}
+        isLoading={isRefining}
       />
     </>
   );

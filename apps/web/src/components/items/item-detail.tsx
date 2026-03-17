@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useItem, useUpdateItem, useDeleteItem } from '@/hooks/use-items';
-import { useProjects } from '@/hooks/use-projects';
+import { useItem, useUpdateItem, useDeleteItem, useRefineItem } from '@/hooks/use-items-convex';
+import { useProjects } from '@/hooks/use-projects-convex';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,6 @@ import { Trash2, PencilLine, Check, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { useRefineItem } from '@/hooks/use-items';
 import { AIPreviewDialog } from './ai-preview-dialog';
 
 interface ItemDetailProps {
@@ -34,10 +33,11 @@ interface ItemDetailProps {
 }
 
 export function ItemDetail({ id }: ItemDetailProps) {
-  const { data: item, isLoading, error } = useItem(id);
-  const { data: projects } = useProjects();
+  const item = useItem(id);
+  const projects = useProjects();
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
+  const refineItem = useRefineItem();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
@@ -46,9 +46,9 @@ export function ItemDetail({ id }: ItemDetailProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [showAIPreview, setShowAIPreview] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<{ title: string; content: string } | null>(null);
-  
+  const [isRefining, setIsRefining] = useState(false);
+
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const refineItem = useRefineItem();
 
   // Sync state when data loads
   useEffect(() => {
@@ -65,44 +65,58 @@ export function ItemDetail({ id }: ItemDetailProps) {
     }
   }, [isEditing]);
 
-  if (isLoading) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
-  if (error || !item) return <div className="p-4 text-center text-destructive">Error loading item</div>;
+  if (item === undefined) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
+  if (!item) return <div className="p-4 text-center text-destructive">Error loading item</div>;
 
   const projectList = projects || [];
 
-  const handleBlur = (field: 'title' | 'content', value: string) => {
+  const handleBlur = async (field: 'title' | 'content', value: string) => {
     if (item[field] !== value) {
       // Don't save empty titles
       if (field === 'title' && !value.trim()) {
         setTitle(item.title);
         return;
       }
-      updateItem.mutate({ id, [field]: value });
+      try {
+        await updateItem({ id, [field]: value });
+      } catch {
+        toast.error('Failed to update item');
+      }
     }
   };
 
-  const handleTypeChange = (value: string) => {
-    updateItem.mutate({ id, type: value as ItemType });
+  const handleTypeChange = async (value: string) => {
+    try {
+      await updateItem({ id, type: value as ItemType });
+    } catch {
+      toast.error('Failed to update type');
+    }
   };
 
-  const handleStatusChange = (value: string) => {
-    updateItem.mutate({ id, status: value as ItemStatus });
+  const handleStatusChange = async (value: string) => {
+    try {
+      await updateItem({ id, status: value as ItemStatus });
+    } catch {
+      toast.error('Failed to update status');
+    }
   };
 
-  const handleProjectChange = (value: string) => {
-    updateItem.mutate({ id, projectId: value === 'none' ? null : value });
+  const handleProjectChange = async (value: string) => {
+    try {
+      await updateItem({ id, projectId: value === 'none' ? undefined : value });
+    } catch {
+      toast.error('Failed to update project');
+    }
   };
 
-  const handleDelete = () => {
-    deleteItem.mutate(id, {
-      onSuccess: () => {
-        toast.success('Item deleted');
-        navigate('/inbox');
-      },
-      onError: () => {
-        toast.error('Failed to delete item');
-      }
-    });
+  const handleDelete = async () => {
+    try {
+      await deleteItem({ id });
+      toast.success('Item deleted');
+      navigate('/inbox');
+    } catch {
+      toast.error('Failed to delete item');
+    }
   };
 
   const toggleEditMode = () => {
@@ -116,22 +130,25 @@ export function ItemDetail({ id }: ItemDetailProps) {
   const handleAIRefine = async () => {
     setShowAIPreview(true);
     setAiSuggestion(null);
+    setIsRefining(true);
     try {
-      const result = await refineItem.mutateAsync(id);
+      const result = await refineItem({ title: item.title, content: item.content || '' });
       setAiSuggestion(result);
     } catch (err) {
       toast.error('AI refinement failed');
       setShowAIPreview(false);
+    } finally {
+      setIsRefining(false);
     }
   };
 
   const handleAIConfirm = async () => {
     if (!aiSuggestion) return;
     try {
-      await updateItem.mutateAsync({
+      await updateItem({
         id,
         title: aiSuggestion.title,
-        content: aiSuggestion.content
+        content: aiSuggestion.content,
       });
       setTitle(aiSuggestion.title);
       setContent(aiSuggestion.content);
@@ -143,9 +160,9 @@ export function ItemDetail({ id }: ItemDetailProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-background pb-8">
-      <div className="flex items-center justify-between p-4 border-b shrink-0">
-        <div className="flex items-center space-x-2">
+    <div className="flex flex-col bg-background pb-8">
+      <div className="flex flex-col gap-3 p-4 border-b shrink-0 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
           <Select value={item.type} onValueChange={handleTypeChange}>
             <SelectTrigger className="w-[100px] h-8 text-xs">
               <SelectValue placeholder="Type" />
@@ -174,14 +191,14 @@ export function ItemDetail({ id }: ItemDetailProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none" className="text-xs">No Project</SelectItem>
-              {projectList.map(project => (
+              {projectList.map((project: any) => (
                 <SelectItem key={project.id} value={project.id} className="text-xs">{project.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 self-start sm:self-auto">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -197,10 +214,10 @@ export function ItemDetail({ id }: ItemDetailProps) {
             size="icon"
             className="h-8 w-8 text-muted-foreground hover:text-primary"
             onClick={handleAIRefine}
-            disabled={refineItem.isPending}
+            disabled={isRefining}
             title="Refine with AI"
           >
-            <Sparkles className={`h-4 w-4 ${refineItem.isPending ? 'animate-pulse text-primary' : ''}`} />
+            <Sparkles className={`h-4 w-4 ${isRefining ? 'animate-pulse text-primary' : ''}`} />
           </Button>
 
           <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -225,7 +242,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
         </div>
       </div>
 
-      <div className="p-4 flex flex-col flex-1 overflow-auto relative">
+      <div className="p-4 flex flex-col flex-1 relative">
         {isEditing ? (
           <div className="flex flex-col h-full space-y-4 animate-in fade-in zoom-in-95 duration-200">
             <Input
@@ -270,7 +287,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
         onConfirm={handleAIConfirm}
         original={{ title: item.title, content: item.content ?? undefined }}
         suggested={aiSuggestion}
-        isLoading={refineItem.isPending}
+        isLoading={isRefining}
       />
     </div>
   );

@@ -1,5 +1,5 @@
-import { useItems } from '@/hooks/use-items';
-import { useProjects } from '@/hooks/use-projects';
+import { useItems } from '@/hooks/use-items-convex';
+import { useProjects } from '@/hooks/use-projects-convex';
 import { ItemCard } from '@/components/items/item-card';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,14 +8,13 @@ interface ProjectItemsProps {
 }
 
 export function ProjectItems({ projectId }: ProjectItemsProps) {
-  const { data: itemsPaginated, isLoading: itemsLoading } = useItems({ project: projectId });
-  const { data: projects, isLoading: projectsLoading } = useProjects();
+  const items = useItems({ projectId });
+  const projects = useProjects();
   const navigate = useNavigate();
 
-  if (itemsLoading || projectsLoading) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
+  if (items === undefined || projects === undefined) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
 
-  const project = projects?.find(p => p.id === projectId);
-  const items = itemsPaginated?.data || [];
+  const project = projects.find((p: any) => p.id === projectId);
 
   if (!project) return <div className="p-4 text-center text-destructive">Project not found</div>;
 
@@ -30,7 +29,7 @@ export function ProjectItems({ projectId }: ProjectItemsProps) {
       </div>
 
       <div className="flex flex-col gap-2">
-        {items.map((item) => (
+        {items.map((item: any) => (
           <ItemCard
             key={item.id}
             item={item}

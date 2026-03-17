@@ -1,22 +1,22 @@
-import { useItems } from '@/hooks/use-items';
-import { useDevLogs } from '@/hooks/use-dev-logs';
+import { useItems } from '@/hooks/use-items-convex';
+import { useDevLogs } from '@/hooks/use-dev-logs-convex';
 import { ItemCard } from '@/components/items/item-card';
 import { useNavigate } from 'react-router-dom';
 import { GitCommit } from 'lucide-react';
 
 export function TimelineView() {
-  const { data: itemsResponse, isLoading: itemsLoading } = useItems({ limit: 100 });
-  const { data: devLogsResponse, isLoading: logsLoading } = useDevLogs({ limit: 100 });
+  const items = useItems({ limit: 100 });
+  const logs = useDevLogs({ limit: 100 });
   const navigate = useNavigate();
 
-  if (itemsLoading || logsLoading) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
+  if (items === undefined || logs === undefined) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
 
-  const items = itemsResponse?.data || [];
-  const logs = devLogsResponse?.data || [];
+  const itemsList = items || [];
+  const logsList = logs || [];
 
   const combined = [
-    ...items.map(item => ({ type: 'item' as const, date: item.createdAt, data: item })),
-    ...logs.map(log => ({ type: 'log' as const, date: log.createdAt, data: log }))
+    ...itemsList.map((item: any) => ({ type: 'item' as const, date: item.createdAt, data: item })),
+    ...logsList.map((log: any) => ({ type: 'log' as const, date: log.createdAt, data: log }))
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const groupedTasks: Record<string, typeof combined> = {};
@@ -41,7 +41,7 @@ export function TimelineView() {
             <div className="space-y-4 pl-1">
               {entries.map((entry) => {
                 if (entry.type === 'item') {
-                  const item = entry.data as typeof items[0];
+                  const item = entry.data as typeof itemsList[0];
                   // Using inline styles to conditionally hide the visual timeline cues. In a real app we'd map over it to know if it's the last element.
                   return (
                     <div key={`item-${item.id}`} className="relative pl-6">
@@ -49,7 +49,7 @@ export function TimelineView() {
                     </div>
                   );
                 } else {
-                  const log = entry.data as typeof logs[0];
+                  const log = entry.data as typeof logsList[0];
                   return (
                     <div key={`log-${log.id}`} className="relative pl-6 flex items-start gap-3 py-2">
                       <div className="mt-1 bg-muted rounded-full p-1 mb-auto flex-shrink-0 opacity-70">

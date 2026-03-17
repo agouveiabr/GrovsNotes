@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from '@/components/layout/app-shell';
 import { CapturePage } from '@/routes/capture-page';
@@ -11,16 +11,12 @@ import { TimelinePage } from '@/routes/timeline-page';
 import { ThemeProvider } from '@/components/theme/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { staleTime: 1000 * 30, retry: 1 },
-  },
-});
+const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL);
 
 function App() {
   return (
     <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
+      <ConvexProvider client={convex}>
         <BrowserRouter>
           <Routes>
             <Route element={<AppShell />}>
@@ -36,7 +32,7 @@ function App() {
           </Routes>
         </BrowserRouter>
         <Toaster />
-      </QueryClientProvider>
+      </ConvexProvider>
     </ThemeProvider>
   );
 }

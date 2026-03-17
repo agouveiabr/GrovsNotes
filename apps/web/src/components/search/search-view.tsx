@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearch } from '@/hooks/use-search';
+import { useSearch } from '@/hooks/use-search-convex';
 import { ItemCard } from '@/components/items/item-card';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
@@ -20,10 +20,11 @@ function useDebounce<T>(value: T, delay: number): T {
 export function SearchView() {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
-  const { data: searchResults, isLoading } = useSearch(debouncedQuery);
+  const searchResults = useSearch(debouncedQuery);
   const navigate = useNavigate();
 
-  const items = searchResults?.items || [];
+  const isLoading = searchResults === undefined;
+  const items = searchResults || [];
 
   return (
     <div className="flex flex-col h-full bg-background p-4 gap-4 overflow-y-auto">
@@ -50,7 +51,7 @@ export function SearchView() {
         {!isLoading && items.length > 0 && (
           <div className="flex flex-col gap-2">
             <h3 className="text-xs font-medium text-muted-foreground uppercase mt-1 mb-2 tracking-wider">Matches ({items.length})</h3>
-            {items.map((item) => (
+            {items.map((item: any) => (
               <ItemCard
                 key={item.id}
                 item={item}
