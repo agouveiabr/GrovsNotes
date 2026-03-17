@@ -1,0 +1,8 @@
+{
+  "buildCommand": "pnpm --filter @grovsnotes/web build",
+  "outputDirectory": "apps/web/dist",
+  "devCommand": "pnpm --filter @grovsnotes/web dev",
+  "env": {
+    "VITE_CONVEX_URL": "@convex-url"
+  }
+}
