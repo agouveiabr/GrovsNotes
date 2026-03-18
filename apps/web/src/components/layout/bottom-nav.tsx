@@ -1,13 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { Plus, Inbox, FolderOpen, Search, Clock, Sun, Moon } from 'lucide-react';
+import { Plus, LayoutKanban, FolderOpen, Search, CalendarCheck, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/components/theme/theme-provider';
 
 const navItems = [
   { to: '/', label: 'Capture', icon: Plus },
-  { to: '/inbox', label: 'Inbox', icon: Inbox },
+  { to: '/board', label: 'Board', icon: LayoutKanban },
   { to: '/projects', label: 'Projects', icon: FolderOpen },
   { to: '/search', label: 'Search', icon: Search },
-  { to: '/timeline', label: 'Timeline', icon: Clock },
+  { to: '/today', label: 'Today', icon: CalendarCheck },
 ];
 
 export function BottomNav() {
