@@ -1,4 +1,5 @@
-import { DndContext, DragEndEvent, DragOverlay } from '@dnd-kit/core';
+import { DndContext, DragOverlay } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 import { useState } from 'react';
 import type { ItemStatus, ItemWithTags } from '@grovsnotes/shared';
 import { useProjects } from '@/hooks/use-projects-convex';
@@ -29,8 +30,8 @@ export function BoardView({ projectId }: BoardViewProps) {
 
   // Group items by status
   const itemsByStatus = statuses.reduce(
-    (acc, status) => {
-      acc[status] = (allItems || []).filter((item) => item.status === status);
+    (acc: Record<ItemStatus, ItemWithTags[]>, status) => {
+      acc[status] = (allItems || []).filter((item: ItemWithTags) => item.status === status);
       return acc;
     },
     {} as Record<ItemStatus, ItemWithTags[]>
@@ -43,7 +44,7 @@ export function BoardView({ projectId }: BoardViewProps) {
     if (!over) return;
 
     const targetStatus = over.id as ItemStatus;
-    const item = (allItems || []).find((i) => i.id === active.id);
+    const item = (allItems || []).find((i: ItemWithTags) => i.id === active.id);
 
     if (!item || item.status === targetStatus) return;
 
@@ -58,7 +59,7 @@ export function BoardView({ projectId }: BoardViewProps) {
     setSelectedProjectId(value);
   };
 
-  const activeItem = activeId ? (allItems || []).find((i) => i.id === activeId) : null;
+  const activeItem = activeId ? (allItems || []).find((i: ItemWithTags) => i.id === activeId) : null;
 
   return (
     <div className="flex flex-col gap-4 h-full">

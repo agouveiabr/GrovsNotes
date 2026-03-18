@@ -1,5 +1,5 @@
 import { useItemsDue, useOldInbox } from '@/hooks/use-items-convex';
-import { todayMidnightLocal, tomorrowMidnightLocal, isOverdue, isDueToday } from '@/lib/dates';
+import { tomorrowMidnightLocal, isOverdue, isDueToday } from '@/lib/dates';
 import { TodaySection } from './today-section';
 
 export function TodayView() {
@@ -12,8 +12,8 @@ export function TodayView() {
   const oldInboxItems = useOldInbox(oneDayAgo);
 
   // Split due items into overdue and due today
-  const overdue = (dueItems || []).filter((item) => isOverdue(item.dueAt!));
-  const dueToday = (dueItems || []).filter((item) => isDueToday(item.dueAt!));
+  const overdue = (dueItems || []).filter((item: any) => isOverdue(item.dueAt!));
+  const dueToday = (dueItems || []).filter((item: any) => isDueToday(item.dueAt!));
 
   return (
     <div className="space-y-6">
