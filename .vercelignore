@@ -1,6 +1,4 @@
 node_modules
-apps/api
-packages/db
 apps/web/node_modules
 .git
 *.log
