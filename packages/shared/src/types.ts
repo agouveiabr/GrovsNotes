@@ -11,6 +11,7 @@ export interface Item {
   type: ItemType;
   status: ItemStatus;
   projectId: string | null;
+  dueAt: number | null;
   createdAt: string;
   updatedAt: string;
 }

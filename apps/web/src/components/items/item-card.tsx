@@ -1,10 +1,11 @@
 import { Badge } from '@/components/ui/badge';
 import type { ItemWithTags } from '@grovsnotes/shared';
-import { Lightbulb, CheckSquare, FileText, Bug, FlaskConical, Sparkles, Loader2 } from 'lucide-react';
+import { Lightbulb, CheckSquare, FileText, Bug, FlaskConical, Sparkles, Loader2, CalendarClock } from 'lucide-react';
 import { useRefineItem, useUpdateItem } from '@/hooks/use-items-convex';
 import { useState } from 'react';
 import { AIPreviewDialog } from './ai-preview-dialog';
 import { toast } from 'sonner';
+import { formatDueDate, isOverdue } from '@/lib/dates';
 
 const typeIcons = {
   idea: Lightbulb,
@@ -73,15 +74,27 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
           <Icon className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate pr-14">{item.title}</p>
-            {(item.tags?.length ?? 0) > 0 && (
-              <div className="flex gap-1 mt-1 flex-wrap">
-                {item.tags.map((tag) => (
-                  <Badge key={tag.id} variant="secondary" className="text-xs">
-                    {tag.name}
-                  </Badge>
-                ))}
-              </div>
-            )}
+            <div className="flex gap-1 mt-1 flex-wrap">
+              {item.dueAt && (
+                <>
+                  {isOverdue(item.dueAt) ? (
+                    <Badge variant="destructive" className="text-xs">
+                      Overdue
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-xs flex items-center gap-1">
+                      <CalendarClock className="h-3 w-3" />
+                      {formatDueDate(item.dueAt)}
+                    </Badge>
+                  )}
+                </>
+              )}
+              {item.tags?.map((tag) => (
+                <Badge key={tag.id} variant="secondary" className="text-xs">
+                  {tag.name}
+                </Badge>
+              ))}
+            </div>
           </div>
           <div className="flex flex-col items-end gap-1">
             <span className="text-xs text-muted-foreground whitespace-nowrap">

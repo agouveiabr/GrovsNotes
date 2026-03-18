@@ -20,12 +20,14 @@ export default defineSchema({
       v.literal("archived")
     ),
     projectId: v.optional(v.id("projects")),
+    dueAt: v.optional(v.number()), // Unix timestamp, midnight local time of the due date
     createdAt: v.number(), // Unix timestamp for proper ordering
     updatedAt: v.number(),
   })
     .index("by_status", ["status"])
     .index("by_type", ["type"])
     .index("by_projectId", ["projectId"])
+    .index("by_dueAt", ["dueAt"])
     .index("by_createdAt", ["createdAt"])
     .searchIndex("search_title", {
       searchField: "title",
