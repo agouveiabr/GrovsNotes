@@ -13,9 +13,9 @@ The primary goal of this phase is to deliver a high-speed, keyboard-first task m
 ## V1 Requirements
 
 ### PARSER: Advanced Parsing Engine
-- **PARSER-01**: Centralized `MultiEntityParser` to handle `#tags`, `^projects`, and `!!priority` from task titles.
-- **PARSER-02**: Natural language date parsing using `chrono-node` for `dueAt` extraction (e.g., "tomorrow", "next tuesday").
-- **PARSER-03**: Support for Conventional Task prefixes (`feat:`, `fix:`, `chore:`, `idea:`, `bug:`) to automatically set the item `type`.
+- **PARSER-01**: Centralized `MultiEntityParser` to handle the `Type - Project - Title - Date` structure with 4-letter alias matching.
+- **PARSER-02**: Natural language date parsing using `chrono-node` for `dueAt` extraction (e.g., "tomorrow").
+- **PARSER-03**: Support for automatic current date for 'log' types and semantic mapping for prefixes.
 - **PARSER-04**: Metadata stripping from the visible task title while preserving the `originalInput` for future editing.
 - **PARSER-05**: Client-side "Preview Parse" to ensure immediate feedback without backend round-trips.
 

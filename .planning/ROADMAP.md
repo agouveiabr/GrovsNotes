@@ -11,15 +11,15 @@ The goal of this project is to implement a high-speed, keyboard-first task manag
 ## Phase Details
 
 ### Phase 1: Advanced Parsing Engine (Foundation)
-**Goal**: Build a reliable extraction engine to handle natural language task metadata.
+**Goal**: Build a reliable extraction engine to handle the `Type - Project - Title - Date` structure.
 **Depends on**: Existing GrovsNotes core.
 **Requirements**: PARSER-01, PARSER-02, PARSER-03, PARSER-04, PARSER-05.
 **Success Criteria** (what must be TRUE):
-  1. The parser accurately extracts `#tags`, `^projects`, and `!!priorities` from input text.
-  2. `chrono-node` correctly translates relative dates (e.g., "friday") to the correct Unix timestamp.
-  3. Task types (`feat:`, `fix:`) are auto-detected via prefixes.
-  4. Titles are stored as "clean" (without tokens) while the full original input is preserved in the database.
-**Plans**: 2 plans
+  1. The parser accurately splits the `Type - Project - Title - Date` structure.
+  2. Projects are auto-matched by name or 4-letter alias, and auto-created if missing.
+  3. `log` items automatically get the current date if no date is provided.
+  4. Titles are stored as "clean" while the original raw input is preserved as `originalInput`.
+**Plans**: TBD
 
 Plans:
 - [ ] 01-advanced-parsing-engine-01.md — MultiEntityParser & Schema Update
