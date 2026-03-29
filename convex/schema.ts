@@ -4,6 +4,7 @@ import { v } from "convex/values";
 export default defineSchema({
   items: defineTable({
     title: v.string(),
+    originalInput: v.optional(v.string()),
     content: v.optional(v.string()),
     type: v.union(
       v.literal("idea"),
@@ -47,6 +48,7 @@ export default defineSchema({
 
   projects: defineTable({
     name: v.string(),
+    alias: v.optional(v.string()),
     color: v.optional(v.string()),
     icon: v.optional(v.string()),
   }),

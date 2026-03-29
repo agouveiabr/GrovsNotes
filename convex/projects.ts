@@ -81,3 +81,38 @@ export const deleteProject = mutation({
     return args.id;
   },
 });
+
+export async function internalFindOrCreateProject(ctx: any, name: string) {
+  const searchName = name.toLowerCase();
+
+  // 1. Search for a project where name matches or alias matches the parsed project
+  const projects = await ctx.db.query("projects").collect();
+  let project = projects.find(
+    (p: any) => p.name.toLowerCase() === searchName || p.alias?.toLowerCase() === searchName
+  );
+
+  if (project) {
+    // 2. If found: If project has no alias, update it with name.slice(0, 4).toLowerCase()
+    if (!project.alias) {
+      const alias = project.name.slice(0, 4).toLowerCase();
+      await ctx.db.patch(project._id, { alias });
+    }
+    return project._id;
+  }
+
+  // 3. If not found: Create a new project with the parsed name and set its alias to name.slice(0, 4).toLowerCase()
+  const alias = name.slice(0, 4).toLowerCase();
+  return await ctx.db.insert("projects", {
+    name,
+    alias,
+  });
+}
+
+export const findOrCreateProject = mutation({
+  args: {
+    name: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await internalFindOrCreateProject(ctx, args.name);
+  },
+});

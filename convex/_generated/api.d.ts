@@ -13,6 +13,7 @@ import type * as devLogs from "../devLogs.js";
 import type * as http from "../http.js";
 import type * as items from "../items.js";
 import type * as lib_hashtags from "../lib/hashtags.js";
+import type * as lib_parser from "../lib/parser.js";
 import type * as lib_search_parser from "../lib/search_parser.js";
 import type * as obsidian from "../obsidian.js";
 import type * as projects from "../projects.js";
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   items: typeof items;
   "lib/hashtags": typeof lib_hashtags;
+  "lib/parser": typeof lib_parser;
   "lib/search_parser": typeof lib_search_parser;
   obsidian: typeof obsidian;
   projects: typeof projects;

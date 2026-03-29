@@ -10,7 +10,12 @@
     "lint": "pnpm -r lint"
   },
   "dependencies": {
+    "chrono-node": "^2.7.7",
     "convex": "^1.15.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.1",
+    "vitest": "^3.0.0"
   },
   "engines": {
     "node": ">=22",

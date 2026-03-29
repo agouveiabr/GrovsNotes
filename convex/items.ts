@@ -2,6 +2,8 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { parseHashtags } from "./lib/hashtags";
 import { Id } from "./_generated/dataModel";
+import { parseItem } from "./lib/parser";
+import { internalFindOrCreateProject } from "./projects";
 
 async function upsertTags(ctx: any, tags: string[]): Promise<Id<"tags">[]> {
   const tagIds: Id<"tags">[] = [];
@@ -41,6 +43,8 @@ async function withTags(ctx: any, item: any) {
 export const createItem = mutation({
   args: {
     title: v.string(),
+    now: v.optional(v.number()),
+    timezoneOffset: v.optional(v.number()),
     content: v.optional(v.string()),
     type: v.optional(
       v.union(
@@ -54,17 +58,32 @@ export const createItem = mutation({
     projectId: v.optional(v.id("projects")),
   },
   handler: async (ctx, args) => {
-    const { cleanTitle, tags } = parseHashtags(args.title);
-    const now = Date.now();
+    // 1. Use parseItem if context is provided, otherwise fallback to simple title
+    const parseContext = {
+      now: args.now ?? Date.now(),
+      timezoneOffset: args.timezoneOffset ?? 0,
+    };
+    const parsed = parseItem(args.title, parseContext);
+
+    // 2. Handle Project Matching/Auto-creation
+    let finalProjectId = args.projectId;
+    if (parsed.project && !finalProjectId) {
+      finalProjectId = await internalFindOrCreateProject(ctx, parsed.project);
+    }
+
+    // 3. Handle Hashtags on the cleanTitle from parser
+    const { cleanTitle, tags } = parseHashtags(parsed.cleanTitle);
 
     const itemId = await ctx.db.insert("items", {
       title: cleanTitle,
+      originalInput: args.title,
       content: args.content,
-      type: args.type ?? "idea",
+      type: (args.type as any) ?? parsed.type,
       status: "inbox",
-      projectId: args.projectId,
-      createdAt: now,
-      updatedAt: now,
+      projectId: finalProjectId,
+      dueAt: parsed.dueAt,
+      createdAt: parseContext.now,
+      updatedAt: parseContext.now,
     });
 
     if (tags.length > 0) {
