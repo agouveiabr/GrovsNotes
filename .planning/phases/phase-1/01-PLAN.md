@@ -52,7 +52,9 @@ Output: A shared parser utility and updated items schema.
   <files>package.json, convex/schema.ts</files>
   <action>
     - Add "chrono-node": "^2.7.7" to the root package.json dependencies (per research).
+    - Add "tsx": "^4.7.1" and "vitest": "^3.0.0" to the root package.json devDependencies (to support TS execution and unit testing).
     - Update the "items" table in convex/schema.ts to include:
+      - Update "type" field to include 'feat', 'fix', and 'chore' in the union (e.g., v.union(v.literal("idea"), v.literal("task"), v.literal("note"), v.literal("bug"), v.literal("research"), v.literal("feat"), v.literal("fix"), v.literal("chore")))
       - originalInput: v.string() (to store the raw user input per PARSER-04)
       - priority: v.optional(v.number()) (to store !!priority values 1-4)
     - Ensure all existing optional fields (type, status, projectId, dueAt) are correctly defined.
@@ -60,7 +62,7 @@ Output: A shared parser utility and updated items schema.
   <verify>
     <automated>pnpm install && npx convex dev --once</automated>
   </verify>
-  <done>Dependencies installed and Convex schema updated with new persistence fields.</done>
+  <done>Dependencies installed (including tsx/vitest) and Convex schema updated with new types and persistence fields.</done>
 </task>
 
 <task type="auto" tdd="true">
@@ -89,9 +91,9 @@ Output: A shared parser utility and updated items schema.
     Date extraction should use chrono.parseDate and return a Unix timestamp (ms).
   </action>
   <verify>
-    <automated>node -e "const p = require('./convex/lib/parser.ts'); console.log(p.parseItem('test #tag !!1 tomorrow'))"</automated>
+    <automated>npx tsx -e "import { parseItem } from './convex/lib/parser.ts'; console.log(parseItem('test #tag !!1 tomorrow'))"</automated>
   </verify>
-  <done>MultiEntityParser implemented and verified against all token patterns.</done>
+  <done>MultiEntityParser implemented and verified against all token patterns using tsx.</done>
 </task>
 
 </tasks>
@@ -101,7 +103,7 @@ Verify that pnpm install succeeds and the parser logic correctly handles combine
 </verification>
 
 <success_criteria>
-- Schema includes originalInput and priority.
+- Schema includes originalInput and priority, and supports feat/fix/chore types.
 - MultiEntityParser extracts all 5 metadata types correctly.
 - Clean title excludes all tokens and prefix.
 </success_criteria>

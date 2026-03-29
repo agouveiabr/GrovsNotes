@@ -4,7 +4,7 @@ plan: 02
 type: execute
 wave: 2
 depends_on: [01-advanced-parsing-engine-01]
-files_modified: [convex/items.ts, apps/web/src/components/capture/capture-input.tsx]
+files_modified: [convex/items.ts, apps/web/src/components/capture/capture-input.tsx, apps/web/src/components/capture/capture-input.test.tsx]
 autonomous: true
 requirements: [PARSER-01, PARSER-02, PARSER-03, PARSER-04, PARSER-05]
 
@@ -65,19 +65,22 @@ Output: Integrated mutations and a functional capture preview.
   <done>Convex mutations correctly use the parser to populate structured fields from raw input strings.</done>
 </task>
 
-<task type="auto">
+<task type="auto" tdd="true">
   <name>Task 2: Add Real-time Metadata Preview</name>
-  <files>apps/web/src/components/capture/capture-input.tsx</files>
+  <files>apps/web/src/components/capture/capture-input.tsx, apps/web/src/components/capture/capture-input.test.tsx</files>
   <action>
     - Integrate the MultiEntityParser into the CaptureInput's onChange handler.
     - Render a preview section beneath the textarea.
     - Show detected metadata visually (e.g., using small badges or text indicators for tags, project, priority, and date).
     - Ensure the preview updates instantly as the user types (PARSER-05).
+    - Create a unit test in apps/web/src/components/capture/capture-input.test.tsx that verifies:
+      1. Typing into the input triggers the parser.
+      2. The preview updates with the correctly extracted tokens.
   </action>
   <verify>
-    <automated>pnpm --filter @grovsnotes/web build</automated>
+    <automated>npx vitest run apps/web/src/components/capture/capture-input.test.tsx && pnpm --filter @grovsnotes/web build</automated>
   </verify>
-  <done>Capture input provides immediate visual confirmation of how the parser interprets user input.</done>
+  <done>Capture input provides immediate visual confirmation, and the preview logic is verified by a robust unit test.</done>
 </task>
 
 </tasks>
@@ -89,7 +92,7 @@ Verify that creating an item via the UI correctly reflects all parsed metadata i
 <success_criteria>
 - New items in the database have correct priority, tags, project, and dueAt.
 - originalInput is stored in the database.
-- UI preview displays recognized tokens correctly.
+- UI preview displays recognized tokens correctly and is verified by tests.
 </success_criteria>
 
 <output>
