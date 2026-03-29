@@ -22,11 +22,12 @@ import {
 } from '@/components/ui/dialog';
 import { ITEM_TYPES, ITEM_STATUSES, type ItemType, type ItemStatus } from '@grovsnotes/shared';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, PencilLine, Check, Sparkles } from 'lucide-react';
+import { Trash2, PencilLine, Check, Sparkles, BookOpen, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { AIPreviewDialog } from './ai-preview-dialog';
+import { useSendToObsidian } from '@/lib/obsidian';
 
 interface ItemDetailProps {
   id: string;
@@ -38,6 +39,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
   const refineItem = useRefineItem();
+  const sendToObsidian = useSendToObsidian();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
@@ -47,6 +49,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
   const [showAIPreview, setShowAIPreview] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<{ title: string; content: string } | null>(null);
   const [isRefining, setIsRefining] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -142,6 +145,18 @@ export function ItemDetail({ id }: ItemDetailProps) {
     }
   };
 
+  const handleSendToObsidian = async () => {
+    setIsSending(true);
+    try {
+      const result = await sendToObsidian({ title: item.title, content: item.content ?? '', type: item.type });
+      toast.success(`Sent to Obsidian: ${result.filePath}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to send to Obsidian');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const handleAIConfirm = async () => {
     if (!aiSuggestion) return;
     try {
@@ -192,7 +207,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
             <SelectContent>
               <SelectItem value="none" className="text-xs">No Project</SelectItem>
               {projectList.map((project: any) => (
-                <SelectItem key={project.id} value={project.id} className="text-xs">{project.name}</SelectItem>
+                <SelectItem key={project._id} value={project._id} className="text-xs">{project.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -218,6 +233,21 @@ export function ItemDetail({ id }: ItemDetailProps) {
             title="Refine with AI"
           >
             <Sparkles className={`h-4 w-4 ${isRefining ? 'animate-pulse text-primary' : ''}`} />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
+            onClick={handleSendToObsidian}
+            disabled={isSending}
+            title="Send to Obsidian"
+          >
+            {isSending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <BookOpen className="h-4 w-4" />
+            )}
           </Button>
 
           <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
