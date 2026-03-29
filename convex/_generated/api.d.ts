@@ -14,6 +14,7 @@ import type * as http from "../http.js";
 import type * as items from "../items.js";
 import type * as lib_hashtags from "../lib/hashtags.js";
 import type * as lib_search_parser from "../lib/search_parser.js";
+import type * as obsidian from "../obsidian.js";
 import type * as projects from "../projects.js";
 import type * as search from "../search.js";
 
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   items: typeof items;
   "lib/hashtags": typeof lib_hashtags;
   "lib/search_parser": typeof lib_search_parser;
+  obsidian: typeof obsidian;
   projects: typeof projects;
   search: typeof search;
 }>;

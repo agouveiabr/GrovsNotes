@@ -201,7 +201,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
             <SelectContent>
               <SelectItem value="none" className="text-xs">No Project</SelectItem>
               {projectList.map((project: any) => (
-                <SelectItem key={project.id} value={project.id} className="text-xs">{project.name}</SelectItem>
+                <SelectItem key={project._id} value={project._id} className="text-xs">{project.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -242,6 +242,8 @@ export function ItemDetail({ id }: ItemDetailProps) {
                 <Trash2 className="h-4 w-4" />
               </Button>
             </DialogTrigger>
+...
+
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Delete Item</DialogTitle>

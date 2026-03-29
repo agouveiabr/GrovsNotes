@@ -24,7 +24,7 @@ export function KanbanColumn({ status, items }: KanbanColumnProps) {
   return (
     <div
       ref={setNodeRef}
-      className="flex flex-col min-w-[220px] w-[220px] bg-muted/30 rounded-lg p-3 border border-muted gap-3 h-fit"
+      className="flex flex-col min-w-[min(280px,80vw)] w-[min(280px,80vw)] bg-muted/30 rounded-lg p-3 border border-muted gap-3 snap-start self-start"
     >
       <div className="flex items-center justify-between sticky top-0 bg-muted/30 pb-2 border-b">
         <h3 className={`text-sm font-semibold ${config.color} capitalize`}>{config.label}</h3>

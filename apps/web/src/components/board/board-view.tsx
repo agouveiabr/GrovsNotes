@@ -62,9 +62,9 @@ export function BoardView({ projectId }: BoardViewProps) {
   const activeItem = activeId ? (allItems || []).find((i: ItemWithTags) => i.id === activeId) : null;
 
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="flex flex-col gap-4 h-full overflow-hidden">
       {/* Header with project filter */}
-      <div className="flex items-center gap-2 px-4">
+      <div className="flex items-center gap-2 px-4 shrink-0">
         <span className="text-sm font-medium text-muted-foreground">Filter:</span>
         <Select value={selectedProjectId} onValueChange={handleProjectChange}>
           <SelectTrigger className="w-[200px] h-8 text-xs">
@@ -85,7 +85,7 @@ export function BoardView({ projectId }: BoardViewProps) {
 
       {/* Board columns */}
       <DndContext onDragStart={({ active }) => setActiveId(active.id as string)} onDragEnd={handleDragEnd}>
-        <div className="flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 flex-1">
+        <div className="flex gap-3 overflow-x-auto pb-4 px-4 h-full snap-x snap-mandatory scroll-smooth">
           {statuses.map((status) => (
             <KanbanColumn
               key={status}
