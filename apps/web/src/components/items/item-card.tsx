@@ -1,7 +1,8 @@
 import { Badge } from '@/components/ui/badge';
 import type { ItemWithTags } from '@grovsnotes/shared';
-import { Lightbulb, CheckSquare, FileText, Bug, FlaskConical, Sparkles, Loader2 } from 'lucide-react';
+import { Lightbulb, CheckSquare, FileText, Bug, FlaskConical, Sparkles, Loader2, BookOpen } from 'lucide-react';
 import { useRefineItem, useUpdateItem } from '@/hooks/use-items-convex';
+import { useSendToObsidian } from '@/lib/obsidian';
 import { useState } from 'react';
 import { AIPreviewDialog } from './ai-preview-dialog';
 import { toast } from 'sonner';
@@ -23,8 +24,10 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
   const Icon = typeIcons[item.type] || FileText;
   const refine = useRefineItem();
   const update = useUpdateItem();
+  const sendToObsidian = useSendToObsidian();
   const [showPreview, setShowPreview] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [suggestion, setSuggestion] = useState<{ title: string; content: string } | null>(null);
 
   const handleRefine = async (e: React.MouseEvent) => {
@@ -41,6 +44,19 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
       setShowPreview(false);
     } finally {
       setIsRefining(false);
+    }
+  };
+
+  const handleSendToObsidian = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsSending(true);
+    try {
+      const result = await sendToObsidian({ title: item.title, content: item.content ?? '', type: item.type });
+      toast.success(`Sent to Obsidian: ${result.filePath}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to send to Obsidian');
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -73,15 +89,13 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
           <Icon className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate pr-14">{item.title}</p>
-            {(item.tags?.length ?? 0) > 0 && (
-              <div className="flex gap-1 mt-1 flex-wrap">
-                {item.tags.map((tag) => (
-                  <Badge key={tag.id} variant="secondary" className="text-xs">
-                    {tag.name}
-                  </Badge>
-                ))}
-              </div>
-            )}
+            <div className="flex gap-1 mt-1 flex-wrap">
+              {item.tags?.map((tag) => (
+                <Badge key={tag.id} variant="secondary" className="text-xs">
+                  {tag.name}
+                </Badge>
+              ))}
+            </div>
           </div>
           <div className="flex flex-col items-end gap-1">
             <span className="text-xs text-muted-foreground whitespace-nowrap">
@@ -102,6 +116,18 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
                 <Sparkles className="h-3.5 w-3.5" />
               )}
             </button>
+            <button
+              onClick={handleSendToObsidian}
+              disabled={isSending}
+              className="p-1 rounded-md opacity-0 group-hover:opacity-100 hover:bg-primary/10 hover:text-primary transition-all text-muted-foreground"
+              title="Send to Obsidian"
+            >
+              {isSending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <BookOpen className="h-3.5 w-3.5" />
+              )}
+            </button>
           </div>
         </div>
       </div>
@@ -117,3 +143,4 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
     </>
   );
 }
+
