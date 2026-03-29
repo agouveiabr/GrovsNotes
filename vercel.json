@@ -1,5 +1,6 @@
 {
   "buildCommand": "pnpm --filter @grovsnotes/web build",
   "outputDirectory": "apps/web/dist",
-  "devCommand": "pnpm --filter @grovsnotes/web dev"
+  "devCommand": "pnpm --filter @grovsnotes/web dev",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
