@@ -19,7 +19,11 @@ The goal of this project is to implement a high-speed, keyboard-first task manag
   2. `chrono-node` correctly translates relative dates (e.g., "friday") to the correct Unix timestamp.
   3. Task types (`feat:`, `fix:`) are auto-detected via prefixes.
   4. Titles are stored as "clean" (without tokens) while the full original input is preserved in the database.
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 01-advanced-parsing-engine-01.md — MultiEntityParser & Schema Update
+- [ ] 01-advanced-parsing-engine-02.md — Mutation Integration & Preview UI
 
 ### Phase 2: Keyboard-First Navigation & Command Bar
 **Goal**: Enable high-speed, mouse-free navigation and task discovery.
@@ -49,6 +53,6 @@ The goal of this project is to implement a high-speed, keyboard-first task manag
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Advanced Parsing Engine | 0/0 | Not started | - |
+| 1. Advanced Parsing Engine | 0/2 | Not started | - |
 | 2. Keyboard-First Navigation & Command Bar | 0/0 | Not started | - |
 | 3. Real-time UI Chipping & Feedback | 0/0 | Not started | - |
