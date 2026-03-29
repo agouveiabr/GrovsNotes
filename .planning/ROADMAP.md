@@ -4,7 +4,7 @@ The goal of this project is to implement a high-speed, keyboard-first task manag
 
 ## Phases
 
-- [ ] **Phase 1: Advanced Parsing Engine (Foundation)** - Implement the core multi-entity parser for tags, projects, and dates.
+- [x] **Phase 1: Advanced Parsing Engine (Foundation)** - Implement the core multi-entity parser for tags, projects, and dates.
 - [ ] **Phase 2: Keyboard-First Navigation & Command Bar** - Enable mouse-free navigation through `cmdk` and global hotkeys.
 - [ ] **Phase 3: Real-time UI Chipping & Feedback** - Provide immediate visual confirmation and "chipping" of metadata in the capture input.
 
@@ -19,11 +19,10 @@ The goal of this project is to implement a high-speed, keyboard-first task manag
   2. Projects are auto-matched by name or 4-letter alias, and auto-created if missing.
   3. `log` items automatically get the current date if no date is provided.
   4. Titles are stored as "clean" while the original raw input is preserved as `originalInput`.
-**Plans**: TBD
 
 Plans:
-- [ ] 01-advanced-parsing-engine-01.md — MultiEntityParser & Schema Update
-- [ ] 01-advanced-parsing-engine-02.md — Mutation Integration & Preview UI
+- [x] phase-1-01-PLAN.md — MultiEntityParser & Schema Update
+- [x] phase-1-02-PLAN.md — Mutation Integration & Preview UI
 
 ### Phase 2: Keyboard-First Navigation & Command Bar
 **Goal**: Enable high-speed, mouse-free navigation and task discovery.
@@ -34,8 +33,11 @@ Plans:
   2. Users can navigate between Inbox, Today, and Projects using `G` shortcut chords (e.g., `G` -> `I`).
   3. All list views support `J/K` keyboard navigation with visual focus states.
   4. Shortcut hints are visible in the UI to facilitate learning.
-**Plans**: TBD
-**UI hint**: yes
+
+Plans:
+- [ ] phase-2-01-PLAN.md — Core Command Bar foundation
+- [ ] phase-2-02-PLAN.md — Shortcut Chords & Navigation
+- [ ] phase-2-03-PLAN.md — Cheat Sheet & UI hints
 
 ### Phase 3: Real-time UI Chipping & Feedback
 **Goal**: Provide immediate visual confirmation and trust for the parsing engine.
@@ -47,12 +49,11 @@ Plans:
   3. Users can undo/revert a chip back to text by backspacing into it.
   4. An inline preview displays the interpreted metadata beneath the input.
 **Plans**: TBD
-**UI hint**: yes
 
 ## Progress Table
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Advanced Parsing Engine | 0/2 | Not started | - |
-| 2. Keyboard-First Navigation & Command Bar | 0/0 | Not started | - |
+| 1. Advanced Parsing Engine | 2/2 | Completed | 2025-03-29 |
+| 2. Keyboard-First Navigation & Command Bar | 0/3 | Not started | - |
 | 3. Real-time UI Chipping & Feedback | 0/0 | Not started | - |
