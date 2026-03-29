@@ -1,4 +1,4 @@
-import { DndContext, DragOverlay } from '@dnd-kit/core';
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { useState } from 'react';
 import type { ItemStatus, ItemWithTags } from '@grovsnotes/shared';
@@ -25,6 +25,9 @@ export function BoardView({ projectId }: BoardViewProps) {
   const updateItem = useUpdateItem();
   const [selectedProjectId, setSelectedProjectId] = useState<string>(projectId || 'all');
   const [activeId, setActiveId] = useState<string | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
 
   const statuses: ItemStatus[] = ['inbox', 'todo', 'doing', 'done'];
 
@@ -94,7 +97,7 @@ export function BoardView({ projectId }: BoardViewProps) {
       </div>
 
       {/* Board columns */}
-      <DndContext onDragStart={({ active }) => setActiveId(active.id as string)} onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} onDragStart={({ active }) => setActiveId(active.id as string)} onDragEnd={handleDragEnd}>
         <div className="flex gap-3 overflow-x-auto pb-4 px-4 h-full snap-x snap-mandatory scroll-smooth">
           {statuses.map((status) => (
             <KanbanColumn
