@@ -4,6 +4,7 @@ import { useProjects } from '@/hooks/use-projects-convex';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { dateInputToTimestamp, timestampToDateInput } from '@/lib/dates';
 import {
   Select,
   SelectContent,
@@ -112,6 +113,14 @@ export function ItemDetail({ id }: ItemDetailProps) {
     }
   };
 
+  const handleDueDateChange = async (value: string) => {
+    try {
+      await updateItem({ id, dueAt: value ? dateInputToTimestamp(value) : null });
+    } catch {
+      toast.error('Failed to update due date');
+    }
+  };
+
   const handleDelete = async () => {
     try {
       await deleteItem({ id });
@@ -211,6 +220,13 @@ export function ItemDetail({ id }: ItemDetailProps) {
               ))}
             </SelectContent>
           </Select>
+
+          <Input
+            type="date"
+            value={item.dueAt ? timestampToDateInput(item.dueAt) : ''}
+            onChange={e => handleDueDateChange(e.target.value)}
+            className="w-[140px] h-8 text-xs"
+          />
         </div>
 
         <div className="flex items-center gap-1 self-start sm:self-auto">
@@ -256,6 +272,8 @@ export function ItemDetail({ id }: ItemDetailProps) {
                 <Trash2 className="h-4 w-4" />
               </Button>
             </DialogTrigger>
+...
+
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Delete Item</DialogTitle>

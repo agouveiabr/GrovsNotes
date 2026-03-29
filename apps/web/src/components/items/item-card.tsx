@@ -1,11 +1,12 @@
 import { Badge } from '@/components/ui/badge';
 import type { ItemWithTags } from '@grovsnotes/shared';
-import { Lightbulb, CheckSquare, FileText, Bug, FlaskConical, Sparkles, Loader2, BookOpen } from 'lucide-react';
+import { Lightbulb, CheckSquare, FileText, Bug, FlaskConical, Sparkles, Loader2, BookOpen, CalendarClock } from 'lucide-react';
 import { useRefineItem, useUpdateItem } from '@/hooks/use-items-convex';
 import { useSendToObsidian } from '@/lib/obsidian';
 import { useState } from 'react';
 import { AIPreviewDialog } from './ai-preview-dialog';
 import { toast } from 'sonner';
+import { formatDueDate, isOverdue } from '@/lib/dates';
 
 const typeIcons = {
   idea: Lightbulb,
@@ -90,6 +91,20 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate pr-14">{item.title}</p>
             <div className="flex gap-1 mt-1 flex-wrap">
+              {item.dueAt && (
+                <>
+                  {isOverdue(item.dueAt) ? (
+                    <Badge variant="destructive" className="text-xs">
+                      Overdue
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-xs flex items-center gap-1">
+                      <CalendarClock className="h-3 w-3" />
+                      {formatDueDate(item.dueAt)}
+                    </Badge>
+                  )}
+                </>
+              )}
               {item.tags?.map((tag) => (
                 <Badge key={tag.id} variant="secondary" className="text-xs">
                   {tag.name}

@@ -33,6 +33,11 @@ async function getItemTags(ctx: any, itemId: Id<"items">): Promise<string[]> {
   return tags;
 }
 
+async function withTags(ctx: any, item: any) {
+  const tags = await getItemTags(ctx, item._id);
+  return { ...item, id: item._id, tags };
+}
+
 export const createItem = mutation({
   args: {
     title: v.string(),
@@ -177,6 +182,7 @@ export const updateItem = mutation({
       )
     ),
     projectId: v.optional(v.id("projects")),
+    dueAt: v.optional(v.union(v.number(), v.null())),
   },
   handler: async (ctx, args) => {
     const item = await ctx.db.get(args.id);
@@ -206,6 +212,9 @@ export const updateItem = mutation({
     if (args.status !== undefined) updates.status = args.status;
     if (args.type !== undefined) updates.type = args.type;
     if (args.projectId !== undefined) updates.projectId = args.projectId;
+    if (args.dueAt !== undefined) {
+      updates.dueAt = args.dueAt ?? undefined; // null from client = clear field
+    }
 
     await ctx.db.patch(args.id, updates);
     return args.id;
@@ -222,5 +231,49 @@ export const deleteItem = mutation({
     for (const it of itemTags) await ctx.db.delete(it._id);
     await ctx.db.delete(args.id);
     return args.id;
+  },
+});
+
+export const listItemsDue = query({
+  args: { beforeTimestamp: v.number() },
+  handler: async (ctx, args) => {
+    const items = await ctx.db
+      .query("items")
+      .withIndex("by_dueAt", (q: any) => q.gt("dueAt", 0).lte("dueAt", args.beforeTimestamp))
+      .order("asc")
+      .take(200);
+    const active = items.filter((i: any) => i.status !== "done" && i.status !== "archived");
+    return Promise.all(active.map((item: any) => withTags(ctx, item)));
+  },
+});
+
+export const listBoardItems = query({
+  args: { projectId: v.optional(v.id("projects")) },
+  handler: async (ctx, args) => {
+    const statuses = ["inbox", "todo", "doing", "done"] as const;
+    const all: any[] = [];
+    for (const status of statuses) {
+      const batch = await ctx.db
+        .query("items")
+        .withIndex("by_status", (q: any) => q.eq("status", status))
+        .order("desc")
+        .take(100);
+      all.push(...batch);
+    }
+    const filtered = args.projectId ? all.filter((i: any) => i.projectId === args.projectId) : all;
+    return Promise.all(filtered.map((item: any) => withTags(ctx, item)));
+  },
+});
+
+export const listOldInbox = query({
+  args: { olderThanTimestamp: v.number() },
+  handler: async (ctx, args) => {
+    const items = await ctx.db
+      .query("items")
+      .withIndex("by_status", (q: any) => q.eq("status", "inbox"))
+      .order("desc")
+      .take(100);
+    const old = items.filter((i: any) => i.createdAt < args.olderThanTimestamp);
+    return Promise.all(old.map((item: any) => withTags(ctx, item)));
   },
 });

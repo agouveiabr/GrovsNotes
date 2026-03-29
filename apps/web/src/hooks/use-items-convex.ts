@@ -31,3 +31,15 @@ export function useDeleteItem() {
 export function useRefineItem() {
   return useAction(api.ai.refineNote);
 }
+
+export function useItemsDue(beforeTimestamp: number) {
+  return useQuery(api.items.listItemsDue, { beforeTimestamp });
+}
+
+export function useBoardItems(projectId?: string) {
+  return useQuery(api.items.listBoardItems, projectId ? { projectId: projectId as any } : {});
+}
+
+export function useOldInbox(olderThanTimestamp: number) {
+  return useQuery(api.items.listOldInbox, { olderThanTimestamp });
+}
