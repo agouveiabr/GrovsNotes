@@ -119,7 +119,12 @@ export function CaptureInput() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 relative">
-      <h1 className="text-2xl font-bold tracking-tight">GrovsNotes</h1>
+      <div className="flex items-center gap-2">
+        <h1 className="text-2xl font-bold tracking-tight">GrovsNotes</h1>
+        <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 sm:flex">
+          <span className="text-xs">⌘</span>K
+        </kbd>
+      </div>
       {pendingCount > 0 && (
         <Badge variant="secondary" className="absolute top-4 right-4">
           {pendingCount} Pending Sync
@@ -145,6 +150,7 @@ export function CaptureInput() {
             >
               <Send className="h-4 w-4 mr-2" />
               Save
+              <span className="ml-1.5 text-[10px] opacity-50 font-mono hidden sm:inline-block tracking-tighter">⌘↵</span>
             </Button>
           </div>
         </form>

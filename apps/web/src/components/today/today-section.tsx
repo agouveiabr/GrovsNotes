@@ -12,6 +12,8 @@ import { Check, Lightbulb, CheckSquare, FileText, Bug, FlaskConical } from 'luci
 import { useUpdateItem } from '@/hooks/use-items-convex';
 import { formatDueDate } from '@/lib/dates';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 const typeIcons = {
   idea: Lightbulb,
@@ -28,6 +30,8 @@ interface TodaySectionProps {
   items: ItemWithTags[];
   emptyMessage: string;
   variant?: 'default' | 'overdue';
+  activeIndex?: number;
+  startIndex?: number;
 }
 
 export function TodaySection({
@@ -35,10 +39,14 @@ export function TodaySection({
   items,
   emptyMessage,
   variant = 'default',
+  activeIndex,
+  startIndex = 0,
 }: TodaySectionProps) {
   const updateItem = useUpdateItem();
+  const navigate = useNavigate();
 
-  const handleMarkDone = async (itemId: string) => {
+  const handleMarkDone = async (e: React.MouseEvent, itemId: string) => {
+    e.stopPropagation();
     try {
       await updateItem({ id: itemId, status: 'done' });
       toast.success('Item marked done');
@@ -59,14 +67,16 @@ export function TodaySection({
   return (
     <div className="mb-6">
       <div
-        className={`flex items-center justify-between mb-3 pb-2 border-b ${
+        className={cn(
+          "flex items-center justify-between mb-3 pb-2 border-b",
           variant === 'overdue' ? 'border-destructive/30' : ''
-        }`}
+        )}
       >
         <h2
-          className={`text-lg font-semibold ${
+          className={cn(
+            "text-lg font-semibold",
             variant === 'overdue' ? 'text-destructive' : 'text-foreground'
-          }`}
+          )}
         >
           {title}
         </h2>
@@ -77,12 +87,20 @@ export function TodaySection({
         <div className="text-sm text-muted-foreground italic py-4">{emptyMessage}</div>
       ) : (
         <div className="space-y-2">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const Icon = typeIcons[item.type] || FileText;
+            const isActive = activeIndex === startIndex + index;
             return (
               <div
                 key={item.id}
-                className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-accent/30 transition-colors"
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(`/items/${item.id}`)}
+                className={cn(
+                  "flex items-center justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-accent/30 transition-colors cursor-pointer focus-visible:outline-none",
+                  isActive && "ring-2 ring-primary border-primary bg-accent/50",
+                  !isActive && "focus-visible:ring-2 focus-visible:ring-ring"
+                )}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -108,7 +126,7 @@ export function TodaySection({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-muted-foreground hover:text-green-600"
-                    onClick={() => handleMarkDone(item.id)}
+                    onClick={(e) => handleMarkDone(e, item.id)}
                     title="Mark as done"
                   >
                     <Check className="h-4 w-4" />
@@ -118,7 +136,10 @@ export function TodaySection({
                     value={item.status}
                     onValueChange={(value) => handleStatusChange(item.id, value)}
                   >
-                    <SelectTrigger className="w-[80px] h-7 text-xs">
+                    <SelectTrigger 
+                      className="w-[80px] h-7 text-xs" 
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>

@@ -2,6 +2,7 @@ import { useItems } from '@/hooks/use-items-convex';
 import { useProjects } from '@/hooks/use-projects-convex';
 import { ItemCard } from '@/components/items/item-card';
 import { useNavigate } from 'react-router-dom';
+import { useListNavigation } from '@/hooks/use-list-navigation';
 
 interface ProjectItemsProps {
   projectId: string;
@@ -11,6 +12,14 @@ export function ProjectItems({ projectId }: ProjectItemsProps) {
   const items = useItems({ projectId });
   const projects = useProjects();
   const navigate = useNavigate();
+
+  const { activeIndex } = useListNavigation({
+    itemCount: items?.length ?? 0,
+    onSelect: (index) => {
+      const item = items?.[index];
+      if (item) navigate(`/items/${item.id}`);
+    },
+  });
 
   if (items === undefined || projects === undefined) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
 
@@ -29,10 +38,11 @@ export function ProjectItems({ projectId }: ProjectItemsProps) {
       </div>
 
       <div className="flex flex-col gap-2">
-        {items.map((item: any) => (
+        {items.map((item: any, index: number) => (
           <ItemCard
             key={item.id}
             item={item}
+            active={index === activeIndex}
             onClick={(clickedItem) => navigate(`/items/${clickedItem.id}`)}
           />
         ))}

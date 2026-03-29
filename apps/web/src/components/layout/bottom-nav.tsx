@@ -1,13 +1,14 @@
 import { NavLink } from 'react-router-dom';
-import { Plus, LayoutGrid, FolderOpen, Search, CalendarCheck, Sun, Moon } from 'lucide-react';
+import { Plus, LayoutGrid, FolderOpen, Search, CalendarCheck, Sun, Moon, Inbox } from 'lucide-react';
 import { useTheme } from '@/components/theme/theme-provider';
 
 const navItems = [
-  { to: '/', label: 'Capture', icon: Plus },
-  { to: '/board', label: 'Board', icon: LayoutGrid },
-  { to: '/projects', label: 'Projects', icon: FolderOpen },
-  { to: '/search', label: 'Search', icon: Search },
-  { to: '/today', label: 'Today', icon: CalendarCheck },
+  { to: '/', label: 'Capture', icon: Plus, shortcut: 'G+C' },
+  { to: '/inbox', label: 'Inbox', icon: Inbox, shortcut: 'G+I' },
+  { to: '/board', label: 'Board', icon: LayoutGrid, shortcut: 'G+B' },
+  { to: '/projects', label: 'Projects', icon: FolderOpen, shortcut: 'G+P' },
+  { to: '/search', label: 'Search', icon: Search, shortcut: 'G+S' },
+  { to: '/today', label: 'Today', icon: CalendarCheck, shortcut: 'G+T' },
 ];
 
 export function BottomNav() {
@@ -15,7 +16,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 border-t bg-background/80 backdrop-blur-lg z-50">
-      <div className="flex justify-around items-center h-14 max-w-lg mx-auto">
+      <div className="flex justify-around items-center h-14 max-w-lg mx-auto px-2">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
@@ -28,7 +29,14 @@ export function BottomNav() {
             }
           >
             <item.icon className="h-5 w-5" />
-            <span>{item.label}</span>
+            <div className="flex flex-col items-center">
+              <span>{item.label}</span>
+              {item.shortcut && (
+                <span className="text-[8px] opacity-40 font-mono -mt-0.5">
+                  {item.shortcut}
+                </span>
+              )}
+            </div>
           </NavLink>
         ))}
         <button

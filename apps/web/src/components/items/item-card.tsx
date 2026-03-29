@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { AIPreviewDialog } from './ai-preview-dialog';
 import { toast } from 'sonner';
 import { formatDueDate, isOverdue } from '@/lib/dates';
+import { cn } from '@/lib/utils';
 
 const typeIcons = {
   idea: Lightbulb,
@@ -19,9 +20,10 @@ const typeIcons = {
 interface ItemCardProps {
   item: ItemWithTags;
   onClick?: (item: ItemWithTags) => void;
+  active?: boolean;
 }
 
-export function ItemCard({ item, onClick }: ItemCardProps) {
+export function ItemCard({ item, onClick, active }: ItemCardProps) {
   const Icon = typeIcons[item.type] || FileText;
   const refine = useRefineItem();
   const update = useUpdateItem();
@@ -84,7 +86,11 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
             onClick?.(item);
           }
         }}
-        className="w-full text-left p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors relative group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className={cn(
+          "w-full text-left p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors relative group cursor-pointer focus-visible:outline-none",
+          active && "ring-2 ring-primary border-primary bg-accent/30",
+          !active && "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        )}
       >
         <div className="flex items-start gap-2">
           <Icon className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />

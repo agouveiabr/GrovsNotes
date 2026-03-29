@@ -1,60 +1,92 @@
-## VERIFICATION REPORT
-**Phase:** Phase 1: Advanced Parsing Engine
-**Status:** **PASS**
-### Coverage Summary
+---
+phase: 1-advanced-parsing-engine
+verified: 2026-03-04T20:03:00Z
+status: passed
+score: 7/7 must-haves verified
+---
 
-| Requirement | Description | Plans | Status |
-|-------------|-------------|-------|--------|
-| PARSER-01 | Centralized MultiEntityParser for #tags, ^projects, !!priority | 01, 02 | COVERED |
-| PARSER-02 | Natural language date parsing using chrono-node | 01, 02 | COVERED |
-| PARSER-03 | Conventional Task prefixes (feat:, fix:, etc.) | 01, 02 | COVERED |
-| PARSER-04 | Metadata stripping and originalInput preservation | 01, 02 | COVERED |
-| PARSER-05 | Client-side "Preview Parse" feedback | 02 | COVERED |
+# Phase 1: Advanced Parsing Engine Verification Report
 
-### Plan Summary
+**Phase Goal:** Build a reliable extraction engine to handle the 'Type - Project - Title - Date' structure.
+**Verified:** 2026-03-04T20:03:00Z
+**Status:** passed
+**Re-verification:** No — initial verification
 
-| Plan | Tasks | Files | Wave | Status |
-|------|-------|-------|------|--------|
-| 01 | 2 | 3 | 1 | Valid |
-| 02 | 2 | 3 | 2 | Valid |
+## Goal Achievement
 
-### Verification of Fixes (Previous Blockers)
+### Observable Truths
 
-| Previous Issue | Fix Status | Verification Method in Plan |
-|----------------|------------|-----------------------------|
-| Invalid TS execution command | ✅ Resolved | Use of `npx tsx -e` in 01-PLAN.md Task 2 |
-| Prefix mismatch in schema | ✅ Resolved | Explicit update to `items.type` in 01-PLAN.md Task 1 |
-| Weak UI verification | ✅ Resolved | Unit tests with `vitest` in 02-PLAN.md Task 2 |
+| #   | Truth   | Status     | Evidence       |
+| --- | ------- | ---------- | -------------- |
+| 1   | MultiEntityParser correctly splits `Type - Project - Title - Date` | ✓ VERIFIED | Automated test with `npx tsx` confirmed splitting logic. |
+| 2   | `chrono-node` translates natural language dates into Unix timestamps | ✓ VERIFIED | 'tomorrow', 'today', 'next friday' all correctly parsed. |
+| 3   | `log` types automatically receive the current date if omitted | ✓ VERIFIED | Parser returns `dueAt: now` for 'log' prefix when date is missing. |
+| 4   | Semantic mapping correctly translates feat/chore/fix | ✓ VERIFIED | feat/chore -> task, fix -> bug confirmed. |
+| 5   | Convex item creation handles auto-project lookup/creation by 4-letter alias | ✓ VERIFIED | `internalFindOrCreateProject` in `convex/projects.ts` implements this. |
+| 6   | New projects receive a 4-letter alias from their name | ✓ VERIFIED | Logic `name.slice(0, 4).toLowerCase()` found in `convex/projects.ts`. |
+| 7   | CaptureInput provides real-time feedback for the 4-part structure | ✓ VERIFIED | `CaptureInput.tsx` uses `parseItem` in `useMemo` for preview. |
 
-### Dimension Analysis
+**Score:** 7/7 truths verified
 
-#### Dimension 1: Requirement Coverage
-All five PARSER requirements are mapped to specific tasks. The plans cover the full lifecycle from schema updates and parser implementation to mutation integration and UI feedback.
+### Required Artifacts
 
-#### Dimension 2: Task Completeness
-Tasks are well-defined with clear Files, Action, Verify, and Done sections. The inclusion of TDD-style behavior descriptions for the parser and UI components adds necessary specificity.
+| Artifact | Expected    | Status | Details |
+| -------- | ----------- | ------ | ------- |
+| `convex/lib/parser.ts`   | Centralized parsing logic | ✓ VERIFIED | Robust implementation with split and regex support. |
+| `convex/schema.ts`       | Schema update for `originalInput` & project `alias` | ✓ VERIFIED | Fields present in `items` and `projects` tables. |
+| `convex/items.ts`        | Mutation integration with parser | ✓ VERIFIED | `createItem` calls `parseItem` and handles project lookup. |
+| `convex/projects.ts`     | Project lookup and auto-alias logic | ✓ VERIFIED | `internalFindOrCreateProject` implements the full matching/creation cycle. |
+| `apps/web/src/components/capture/capture-input.tsx` | Real-time preview UI | ✓ VERIFIED | Functional preview with timezone awareness. |
 
-#### Dimension 3: Dependency Correctness
-Wave 1 (Plan 01) establishes the foundation (parser + schema), and Wave 2 (Plan 02) integrates it into the application. The dependency `01-advanced-parsing-engine-01` is correctly referenced in Plan 02.
+### Key Link Verification
 
-#### Dimension 4: Key Links Planned
-The wiring between the parser and its consumers (Convex mutations and React components) is explicitly planned. Key links correctly identify the use of `chrono-node` and the internal import of the parser.
+| From | To  | Via | Status | Details |
+| ---- | --- | --- | ------ | ------- |
+| `convex/items.ts` | `convex/lib/parser.ts` | `parseItem` call | ✓ VERIFIED | Used in `createItem` mutation. |
+| `convex/items.ts` | `convex/projects.ts` | `internalFindOrCreateProject` call | ✓ VERIFIED | Used for project auto-matching. |
+| `apps/web/src/components/capture/capture-input.tsx` | `convex/lib/parser.ts` | `parseItem` call | ✓ VERIFIED | Used for real-time preview feedback. |
 
-#### Dimension 5: Scope Sanity
-The phase is split into two focused plans, each with 2 tasks and 3 modified files. This is well within the context budget and promotes high-quality execution.
+### Data-Flow Trace (Level 4)
 
-#### Dimension 6: Verification Derivation
-Truths are user-observable (e.g., "MultiEntityParser correctly extracts #tags", "Capture input shows a real-time preview"). Artifacts and key links directly support these truths.
+| Artifact | Data Variable | Source | Produces Real Data | Status |
+| -------- | ------------- | ------ | ------------------ | ------ |
+| `CaptureInput` | `parsed` | `parseItem` (client-side) | Yes (user input) | ✓ FLOWING |
+| `createItem` | `parsed` | `parseItem` (server-side) | Yes (args.title) | ✓ FLOWING |
+| `createItem` | `finalProjectId` | `internalFindOrCreateProject` | Yes (DB lookup/insert) | ✓ FLOWING |
 
-### Minor Observations (Info)
+### Behavioral Spot-Checks
 
-**1. [task_completeness] Function Naming Consistency**
-- **Plan:** 02
-- **Task:** 1
-- **Observation:** The verification command uses `npx convex run items:create`, but the existing code and the task description refer to the mutation as `createItem`.
-- **Recommendation:** The executor should ensure the command matches the actual export (`items:createItem`).
+| Behavior | Command | Result | Status |
+| -------- | ------- | ------ | ------ |
+| Parse 'todo - grov - Fix - tomorrow' | `npx tsx -e "..."` | `{"type":"task","project":"grov","cleanTitle":"Fix","dueAt":...}` | ✓ PASS |
+| Parse 'log - work - Meeting notes' | `npx tsx -e "..."` | `{"type":"note",...,"dueAt": [now]}` | ✓ PASS |
+| Unit Tests (CaptureInput) | `npx vitest run ...` | 2 passed | ✓ PASS |
 
-### Verdict
-The updated plans successfully address all previous blockers and provide a robust, verifiable roadmap for Phase 1. The addition of `tsx` and `vitest` ensures that the verification steps are technically sound and reliable.
+### Requirements Coverage
 
-Plans verified. Run `/gsd:execute-phase phase-1` to proceed.
+| Requirement | Source Plan | Description | Status | Evidence |
+| ----------- | ---------- | ----------- | ------ | -------- |
+| PARSER-01 | 01, 02 | Centralized MultiEntityParser for #tags, ^projects | ✓ SATISFIED | `parser.ts` and `projects.ts` integration. |
+| PARSER-02 | 01 | Natural language date parsing | ✓ SATISFIED | `chrono-node` integration. |
+| PARSER-03 | 01 | Conventional Task prefixes | ✓ SATISFIED | Semantic mapping in `parser.ts`. |
+| PARSER-04 | 01, 02 | Metadata stripping & originalInput preservation | ✓ SATISFIED | `cleanTitle` and `originalInput` stored in items. |
+| PARSER-05 | 02 | Client-side "Preview Parse" feedback | ✓ SATISFIED | Real-time preview in `CaptureInput`. |
+
+### Anti-Patterns Found
+
+| File | Line | Pattern | Severity | Impact |
+| ---- | ---- | ------- | -------- | ------ |
+| None found | - | - | - | - |
+
+### Human Verification Required
+
+None. Automated tests and codebase inspection confirm the goal is met.
+
+### Gaps Summary
+
+No gaps identified. All success criteria and must-haves are satisfied.
+
+---
+
+_Verified: 2026-03-04T20:03:00Z_
+_Verifier: the agent (gsd-verifier)_
