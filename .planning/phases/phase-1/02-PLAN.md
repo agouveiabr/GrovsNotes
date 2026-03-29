@@ -4,32 +4,31 @@ plan: 02
 type: execute
 wave: 2
 depends_on: [01-advanced-parsing-engine-01]
-files_modified: [convex/items.ts, apps/web/src/components/capture/capture-input.tsx, apps/web/src/components/capture/capture-input.test.tsx]
+files_modified: [convex/items.ts, convex/projects.ts, apps/web/src/components/capture/capture-input.tsx]
 autonomous: true
-requirements: [PARSER-01, PARSER-02, PARSER-03, PARSER-04, PARSER-05]
+requirements: [PARSER-01, PARSER-04, PARSER-05]
 
 must_haves:
   truths:
-    - "Convex items:create mutation persists originalInput and extracted metadata"
-    - "Capture input shows a real-time preview of parsed tokens below the text"
-    - "Project lookup in mutation handles ^project name correctly"
+    - "Convex item creation handles auto-project lookup and creation using 4-letter alias (per PARSER-01)"
+    - "New projects without an alias automatically receive a 4-letter alias from their name (per 01-CONTEXT.md)"
+    - "CaptureInput provides immediate feedback for the 4-part structure (per PARSER-05)"
   artifacts:
+    - path: "convex/projects.ts"
+      provides: "Project lookup and auto-alias logic"
     - path: "apps/web/src/components/capture/capture-input.tsx"
-      provides: "Real-time parsing feedback UI"
+      provides: "Structured 4-part preview UI"
   key_links:
     - from: "convex/items.ts"
       to: "convex/lib/parser.ts"
-      via: "import and call parseItem"
-    - from: "apps/web/src/components/capture/capture-input.tsx"
-      to: "convex/lib/parser.ts"
-      via: "import for client-side preview"
+      via: "import and use parser with client context"
 ---
 
 <objective>
-Integrate the MultiEntityParser into the persistence layer (Convex mutations) and provide immediate user feedback via a preview UI in the capture input.
+Integrate the 4-part parser into Convex mutations with auto-project matching logic and update the UI to provide real-time feedback with client-side timezone context.
 
-Purpose: Complete the capture loop by ensuring interpreted metadata is persisted and displayed.
-Output: Integrated mutations and a functional capture preview.
+Purpose: Complete the capture loop with automated project organization and immediate feedback.
+Output: Intelligent item creation and a structured capture preview.
 </objective>
 
 <execution_context>
@@ -40,7 +39,8 @@ Output: Integrated mutations and a functional capture preview.
 <context>
 @.planning/PROJECT.md
 @.planning/ROADMAP.md
-@.planning/phases/phase-1/01-01-SUMMARY.md
+@.planning/phases/phase-1/01-CONTEXT.md
+@.planning/phases/phase-1/phase-1-01-SUMMARY.md
 @convex/items.ts
 @apps/web/src/components/capture/capture-input.tsx
 </context>
@@ -48,51 +48,49 @@ Output: Integrated mutations and a functional capture preview.
 <tasks>
 
 <task type="auto">
-  <name>Task 1: Update Convex Mutations with Parser</name>
-  <files>convex/items.ts</files>
+  <name>Task 1: Mutation Integration with Project Auto-Matching</name>
+  <files>convex/items.ts, convex/projects.ts</files>
   <action>
-    - Update the createItem mutation:
-      - Accept args.title and use parseItem(args.title) to extract metadata.
-      - Save the original title as "originalInput".
-      - Use the parsed "cleanTitle" as the "title" field.
-      - Map parsed tags, priority, type, and dueAt to the item's fields.
-      - Implement project lookup: Search for a project by name matching the parsed "project". If found, assign its ID.
-    - Update updateItem similarly for when the title is changed.
+    - Update `createItem` to accept `title`, `now`, and `timezoneOffset`.
+    - Call `parseItem(title, { now, timezoneOffset })` to get metadata.
+    - Implement project matching logic in convex/projects.ts:
+      1. Search for a project where `name` matches or `alias` matches the parsed project.
+      2. If found: If project has no alias, update it with `name.slice(0, 4).toLowerCase()`.
+      3. If not found: Create a new project with the parsed name and set its alias to `name.slice(0, 4).toLowerCase()`.
+    - Persist the item with its `cleanTitle`, `originalInput`, mapped `type`, and looked-up `projectId`.
   </action>
   <verify>
-    <automated>npx convex run items:create '{"title": "feat: ^grovsnotes Fix bug #ui !!1 tomorrow"}'</automated>
+    <automated>npx convex run items:create '{"title": "todo - grov - New Task - tomorrow", "now": Date.now(), "timezoneOffset": 0}'</automated>
   </verify>
-  <done>Convex mutations correctly use the parser to populate structured fields from raw input strings.</done>
+  <done>Items created with correct project association and originalInput; projects auto-created/auto-aliased as needed.</done>
 </task>
 
 <task type="auto" tdd="true">
-  <name>Task 2: Add Real-time Metadata Preview</name>
-  <files>apps/web/src/components/capture/capture-input.tsx, apps/web/src/components/capture/capture-input.test.tsx</files>
+  <name>Task 2: UI Preview with Client Context</name>
+  <files>apps/web/src/components/capture/capture-input.tsx</files>
   <action>
-    - Integrate the MultiEntityParser into the CaptureInput's onChange handler.
-    - Render a preview section beneath the textarea.
-    - Show detected metadata visually (e.g., using small badges or text indicators for tags, project, priority, and date).
-    - Ensure the preview updates instantly as the user types (PARSER-05).
-    - Create a unit test in apps/web/src/components/capture/capture-input.test.tsx that verifies:
-      1. Typing into the input triggers the parser.
-      2. The preview updates with the correctly extracted tokens.
+    - Update `CaptureInput` to use `MultiEntityParser` for real-time preview (PARSER-05).
+    - Pass current timestamp (`Date.now()`) and local timezone offset (`new Date().getTimezoneOffset()`) to the parser.
+    - Update the preview UI to clearly show the 4 interpreted parts (Type, Project, Title, Date).
+    - Ensure submitting the input sends the raw title along with current time/offset to the backend.
   </action>
   <verify>
-    <automated>npx vitest run apps/web/src/components/capture/capture-input.test.tsx && pnpm --filter @grovsnotes/web build</automated>
+    <automated>npx vitest run apps/web/src/components/capture/capture-input.test.tsx</automated>
   </verify>
-  <done>Capture input provides immediate visual confirmation, and the preview logic is verified by a robust unit test.</done>
+  <done>CaptureInput provides real-time, structured feedback for the 4-part pattern and passes context to Convex.</done>
 </task>
 
 </tasks>
 
 <verification>
-Verify that creating an item via the UI correctly reflects all parsed metadata in the resulting item record and that the preview accurately displays what will be captured.
+Verify that typing 'log - grov - My work' in the UI shows a preview for 'note' in 'grov' project with today's date, and that submitting it creates the correctly structured item in Convex.
 </verification>
 
 <success_criteria>
-- New items in the database have correct priority, tags, project, and dueAt.
-- originalInput is stored in the database.
-- UI preview displays recognized tokens correctly and is verified by tests.
+- Projects are automatically looked up by 4-letter alias.
+- Missing projects are auto-created with 4-letter aliases.
+- CaptureInput correctly passes timezone context for date parsing.
+- Preview displays the 4 parts clearly.
 </success_criteria>
 
 <output>
