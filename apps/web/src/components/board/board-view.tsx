@@ -43,7 +43,17 @@ export function BoardView({ projectId }: BoardViewProps) {
 
     if (!over) return;
 
-    const targetStatus = over.id as ItemStatus;
+    // over.id is a column status when dropped on a column, or an item id when dropped on a card
+    let targetStatus: ItemStatus;
+    if (statuses.includes(over.id as ItemStatus)) {
+      targetStatus = over.id as ItemStatus;
+    } else {
+      // Dropped on another card — use that card's status as the target column
+      const overItem = (allItems || []).find((i: ItemWithTags) => i.id === over.id);
+      if (!overItem) return;
+      targetStatus = overItem.status;
+    }
+
     const item = (allItems || []).find((i: ItemWithTags) => i.id === active.id);
 
     if (!item || item.status === targetStatus) return;
