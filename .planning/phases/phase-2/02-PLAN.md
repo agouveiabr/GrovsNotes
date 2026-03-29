@@ -1,10 +1,10 @@
 ---
 phase: phase-2
-plan: 02
+plan: "02"
 type: execute
 wave: 2
 depends_on: [01-PLAN.md]
-files_modified: [apps/web/src/components/layout/app-shell.tsx, apps/web/src/hooks/use-list-navigation.ts, apps/web/src/components/inbox/inbox-list.tsx, apps/web/src/components/items/item-card.tsx]
+files_modified: [apps/web/src/components/layout/app-shell.tsx, apps/web/src/hooks/use-list-navigation.ts, apps/web/src/components/inbox/inbox-list.tsx, apps/web/src/components/items/item-card.tsx, apps/web/src/components/today/today-section.tsx, apps/web/src/components/projects/project-items.tsx]
 autonomous: true
 requirements: [KBD-03, KBD-04]
 user_setup: []
@@ -12,7 +12,7 @@ user_setup: []
 must_haves:
   truths:
     - "User can navigate between views using G-chords (e.g. G then I for Inbox)"
-    - "User can move the focus in item lists using J/K keys"
+    - "User can move the focus in item lists (Inbox, Today, Projects) using J/K keys"
     - "Focused item in a list has a visual highlight"
     - "Pressing Enter on a focused item navigates to its details page"
   artifacts:
@@ -32,7 +32,7 @@ must_haves:
 <objective>
 Enable mouse-free navigation through shortcut chords and list control.
 Purpose: To speed up context switching and item interaction for power users.
-Output: Working G-chord navigation and J/K list control in core views.
+Output: Working G-chord navigation and J/K list control in core views (Inbox, Today, Projects).
 </objective>
 
 <execution_context>
@@ -48,6 +48,8 @@ Output: Working G-chord navigation and J/K list control in core views.
 @apps/web/src/components/layout/app-shell.tsx
 @apps/web/src/components/inbox/inbox-list.tsx
 @apps/web/src/components/items/item-card.tsx
+@apps/web/src/components/today/today-section.tsx
+@apps/web/src/components/projects/project-items.tsx
 </context>
 
 <tasks>
@@ -73,33 +75,37 @@ Output: Working G-chord navigation and J/K list control in core views.
 </task>
 
 <task type="auto">
-  <name>Task 2: List Keyboard Navigation (J/K)</name>
-  <files>apps/web/src/hooks/use-list-navigation.ts, apps/web/src/components/inbox/inbox-list.tsx, apps/web/src/components/items/item-card.tsx</files>
+  <name>Task 2: List Keyboard Navigation (J/K) for Inbox, Today, and Projects</name>
+  <files>apps/web/src/hooks/use-list-navigation.ts, apps/web/src/components/inbox/inbox-list.tsx, apps/web/src/components/items/item-card.tsx, apps/web/src/components/today/today-section.tsx, apps/web/src/components/projects/project-items.tsx</files>
   <action>
     - Create `apps/web/src/hooks/use-list-navigation.ts` to manage active index in a list.
     - The hook should listen for `j` (next), `k` (prev), and `enter` (action).
     - Update `ItemCard.tsx` to accept an `active` prop and show a visual border/ring if true.
-    - Integrate the hook into `InboxList.tsx` to enable keyboard navigation for items.
+    - Integrate `useListNavigation` into:
+      - `InboxList.tsx` for navigating the inbox items.
+      - `ProjectItems.tsx` for navigating project-specific items.
+      - `TodaySection.tsx` (or `TodayView.tsx`) to enable navigation across today's sections.
     - Ensure `enter` on an active item navigates to `/items/:id`.
+    - For `TodaySection`, add a visual `active` state to its custom item list if it doesn't use `ItemCard`.
   </action>
   <verify>
-    <automated>grep -r "active" apps/web/src/components/items/item-card.tsx</automated>
+    <automated>grep -r "active" apps/web/src/components/items/item-card.tsx && grep -r "useListNavigation" apps/web/src/components/today/today-section.tsx</automated>
   </verify>
-  <done>J/K navigation implemented in InboxList, with visual active state and Enter action</done>
+  <done>J/K navigation implemented in InboxList, TodayView, and ProjectItems, with visual active state and Enter action (per KBD-03)</done>
 </task>
 
 </tasks>
 
 <verification>
-- Navigate to `/inbox`, press `j` or `k` to move focus.
+- Navigate to `/inbox`, `/today`, or a project page, press `j` or `k` to move focus.
 - Press `Enter` on an item and verify it navigates to `/items/:id`.
 - Press `g t` from any screen and verify it navigates to Today.
 </verification>
 
 <success_criteria>
 - `g i`, `g t`, `g p`, `g b`, `g s`, `g c` all correctly navigate to their respective views.
-- `j` moves selection down in the list.
-- `k` moves selection up in the list.
+- `j` moves selection down in the list in Inbox, Today, and Project views.
+- `k` moves selection up in the list in Inbox, Today, and Project views.
 - `enter` opens the selected item.
 </success_criteria>
 
