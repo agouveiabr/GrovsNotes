@@ -32,9 +32,7 @@ export function ProjectItems({ projectId }: ProjectItemsProps) {
     },
   });
 
-  if (items === undefined || projects === undefined) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
-
-  const project = projects.find((p: any) => p.id === projectId);
+  const project = projects?.find((p: any) => p.id === projectId);
 
   useEffect(() => {
     if (project) {
@@ -42,6 +40,8 @@ export function ProjectItems({ projectId }: ProjectItemsProps) {
       setEditAlias(project.alias || '');
     }
   }, [project]);
+
+  if (items === undefined || projects === undefined) return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
 
   if (!project) return <div className="p-4 text-center text-destructive">Project not found</div>;
 
