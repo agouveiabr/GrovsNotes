@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import type { ItemWithTags } from '@grovsnotes/shared';
 import { Lightbulb, CheckSquare, FileText, Bug, FlaskConical, Sparkles, Loader2, BookOpen, CalendarClock } from 'lucide-react';
 import { useRefineItem, useUpdateItem } from '@/hooks/use-items-convex';
+import { useProjects } from '@/hooks/use-projects-convex';
 import { useSendToObsidian } from '@/lib/obsidian';
 import { useState } from 'react';
 import { AIPreviewDialog } from './ai-preview-dialog';
@@ -15,6 +16,8 @@ const typeIcons = {
   note: FileText,
   bug: Bug,
   research: FlaskConical,
+  'to-do': CheckSquare,
+  log: BookOpen,
 } as const;
 
 interface ItemCardProps {
@@ -25,6 +28,7 @@ interface ItemCardProps {
 
 export function ItemCard({ item, onClick, active }: ItemCardProps) {
   const Icon = typeIcons[item.type] || FileText;
+  const projects = useProjects();
   const refine = useRefineItem();
   const update = useUpdateItem();
   const sendToObsidian = useSendToObsidian();
@@ -96,7 +100,12 @@ export function ItemCard({ item, onClick, active }: ItemCardProps) {
           <Icon className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate pr-14">{item.title}</p>
-            <div className="flex gap-1 mt-1 flex-wrap">
+            <div className="flex gap-1 mt-1 flex-wrap items-center">
+              {item.projectId && projects && (
+                <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-wider py-0 px-1.5 border-primary/20 bg-primary/5 text-primary/80">
+                  {projects.find((p: any) => p.id === item.projectId)?.alias || 'PROJ'}
+                </Badge>
+              )}
               {item.dueAt && (
                 <>
                   {isOverdue(item.dueAt) ? (

@@ -11,7 +11,9 @@ export default defineSchema({
       v.literal("task"),
       v.literal("note"),
       v.literal("bug"),
-      v.literal("research")
+      v.literal("research"),
+      v.literal("to-do"),
+      v.literal("log")
     ),
     status: v.union(
       v.literal("inbox"),

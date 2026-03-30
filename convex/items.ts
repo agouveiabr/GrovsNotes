@@ -52,7 +52,9 @@ export const createItem = mutation({
         v.literal("task"),
         v.literal("note"),
         v.literal("bug"),
-        v.literal("research")
+        v.literal("research"),
+        v.literal("to-do"),
+        v.literal("log")
       )
     ),
     projectId: v.optional(v.id("projects")),
@@ -72,19 +74,29 @@ export const createItem = mutation({
     }
 
     // 3. Handle Hashtags on the cleanTitle from parser
-    const { cleanTitle, tags } = parseHashtags(parsed.cleanTitle);
+    const { cleanTitle: baseCleanTitle, tags } = parseHashtags(parsed.cleanTitle);
+    
+    // 4. Auto-date for log items
+    let cleanTitle = baseCleanTitle;
+    const itemType = (args.type as any) ?? parsed.type;
+    if (itemType === "log") {
+      const dateStr = new Date(parseContext.now).toISOString().split('T')[0];
+      cleanTitle = `[${dateStr}] ${baseCleanTitle}`;
+    }
 
-    const itemId = await ctx.db.insert("items", {
+    const itemDoc: any = {
       title: cleanTitle,
       originalInput: args.title,
-      content: args.content,
-      type: (args.type as any) ?? parsed.type,
+      type: itemType,
       status: "inbox",
-      projectId: finalProjectId,
-      dueAt: parsed.dueAt,
       createdAt: parseContext.now,
       updatedAt: parseContext.now,
-    });
+    };
+    if (args.content !== undefined) itemDoc.content = args.content;
+    if (finalProjectId !== undefined) itemDoc.projectId = finalProjectId;
+    if (parsed.dueAt !== undefined) itemDoc.dueAt = parsed.dueAt;
+
+    const itemId = await ctx.db.insert("items", itemDoc);
 
     if (tags.length > 0) {
       const tagIds = await upsertTags(ctx, tags);
@@ -114,7 +126,9 @@ export const listItems = query({
         v.literal("task"),
         v.literal("note"),
         v.literal("bug"),
-        v.literal("research")
+        v.literal("research"),
+        v.literal("to-do"),
+        v.literal("log")
       )
     ),
     projectId: v.optional(v.id("projects")),
@@ -197,7 +211,9 @@ export const updateItem = mutation({
         v.literal("task"),
         v.literal("note"),
         v.literal("bug"),
-        v.literal("research")
+        v.literal("research"),
+        v.literal("to-do"),
+        v.literal("log")
       )
     ),
     projectId: v.optional(v.id("projects")),

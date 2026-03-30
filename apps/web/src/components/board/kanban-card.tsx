@@ -12,6 +12,8 @@ const typeIcons = {
   note: FileText,
   bug: Bug,
   research: FlaskConical,
+  'to-do': CheckSquare,
+  log: FileText,
 } as const;
 
 interface KanbanCardProps {

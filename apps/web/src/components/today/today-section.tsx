@@ -21,6 +21,8 @@ const typeIcons = {
   note: FileText,
   bug: Bug,
   research: FlaskConical,
+  'to-do': CheckSquare,
+  log: FileText,
 } as const;
 
 const ITEM_STATUSES: ItemStatus[] = ['inbox', 'todo', 'doing', 'done', 'archived'];

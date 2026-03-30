@@ -1,4 +1,4 @@
-export const ITEM_TYPES = ['idea', 'task', 'note', 'bug', 'research'] as const;
+export const ITEM_TYPES = ['idea', 'task', 'note', 'bug', 'research', 'to-do', 'log'] as const;
 export type ItemType = (typeof ITEM_TYPES)[number];
 
 export const ITEM_STATUSES = ['inbox', 'todo', 'doing', 'done', 'archived'] as const;
