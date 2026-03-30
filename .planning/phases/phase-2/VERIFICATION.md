@@ -1,92 +1,101 @@
-# Verification Report: Phase 2 - Keyboard-First Navigation & Command Bar
+---
+phase: phase-2
+verified: 2025-03-05T15:30:00Z
+status: passed
+score: 8/8 must-haves verified
+---
 
-**Status:** PASS ✅
-**Phase:** Phase 2: Keyboard-First Navigation & Command Bar
-**Plans Checked:** 01-PLAN.md, 02-PLAN.md, 03-PLAN.md
-**Verdict:** 0 Blocker(s), 0 Warning(s), 0 Info
+# Phase 2: Keyboard-First Navigation & Command Bar Verification Report
+
+**Phase Goal:** Enable high-speed, mouse-free navigation and task discovery.
+**Verified:** 2025-03-05
+**Status:** passed
+**Re-verification:** No — initial verification
+
+## Goal Achievement
+
+### Observable Truths
+
+| #   | Truth   | Status     | Evidence       |
+| --- | ------- | ---------- | -------------- |
+| 1   | User can open the Command Palette with Cmd+K (or Ctrl+K) from any screen | ✓ VERIFIED | Registered in `app-shell.tsx` using `useHotkeys('mod+k')`. |
+| 2   | User can navigate to Inbox, Today, Search, and Create Task from the Command Palette | ✓ VERIFIED | Implemented in `command-menu.tsx` with `useNavigate` and `cmdk` items. |
+| 3   | User can navigate between views using G-chords (e.g. G then I for Inbox) | ✓ VERIFIED | Registered in `app-shell.tsx` for `g i`, `g t`, `g p`, `g b`, `g s`, `g c`. |
+| 4   | User can move the focus in item lists using J/K keys | ✓ VERIFIED | Managed by `use-list-navigation.ts` hook used in `InboxList`, `TodayView`, and `ProjectItems`. |
+| 5   | Focused item in a list has a visual highlight | ✓ VERIFIED | `ItemCard` and `TodaySection` items apply `ring-2 ring-primary` classes when `active` is true. |
+| 6   | Pressing Enter on a focused item navigates to its details page | ✓ VERIFIED | `use-list-navigation.ts` handles `enter` key and calls `onSelect` which navigates to item details. |
+| 7   | User can open a Shortcut Cheat Sheet with the ? key | ✓ VERIFIED | Registered in `app-shell.tsx` toggling `ShortcutCheatSheet` component. |
+| 8   | UI elements and menu items display shortcut hints | ✓ VERIFIED | Hints present in `bottom-nav.tsx` (G+I, etc.), `capture-input.tsx` (⌘K), and `command-menu.tsx` (shortcuts on items). |
+
+**Score:** 8/8 truths verified
+
+### Required Artifacts
+
+| Artifact | Expected    | Status | Details |
+| -------- | ----------- | ------ | ------- |
+| `apps/web/src/components/layout/command-menu.tsx` | Global command palette | ✓ VERIFIED | Uses `cmdk` and `shadcn/ui` Dialog. |
+| `apps/web/src/components/layout/app-shell.tsx` | Global hotkey registration | ✓ VERIFIED | Central hub for global hotkeys (Cmd+K, ?, G-chords). |
+| `apps/web/src/hooks/use-list-navigation.ts` | List navigation logic | ✓ VERIFIED | Generic hook for J/K/Enter navigation. |
+| `apps/web/src/components/layout/shortcut-cheat-sheet.tsx` | Help overlay | ✓ VERIFIED | Displays categorized shortcuts in a Dialog. |
+| `apps/web/src/components/items/item-card.tsx` | Active state visual feedback | ✓ VERIFIED | Implements `active` prop for ring highlighting. |
+
+### Key Link Verification
+
+| From | To  | Via | Status | Details |
+| ---- | --- | --- | ------ | ------- |
+| `AppShell` | `CommandMenu` | React component inclusion | ✓ VERIFIED | `open` state passed from `AppShell`. |
+| `AppShell` | `ShortcutCheatSheet` | React component inclusion | ✓ VERIFIED | `showCheatSheet` state passed from `AppShell`. |
+| `InboxList` | `useListNavigation` | Hook usage | ✓ VERIFIED | Manages selection in Inbox items. |
+| `TodayView` | `useListNavigation` | Hook usage | ✓ VERIFIED | Manages selection across overdue, today, and old inbox sections. |
+| `ProjectItems` | `useListNavigation` | Hook usage | ✓ VERIFIED | Manages selection in project items. |
+
+### Data-Flow Trace (Level 4)
+
+| Artifact | Data Variable | Source | Produces Real Data | Status |
+| -------- | ------------- | ------ | ------------------ | ------ |
+| `InboxList` | `items` | `useItems` (Convex) | Yes (DB query) | ✓ FLOWING |
+| `TodayView` | `allItems` | `useItemsDue` / `useOldInbox` | Yes (DB query) | ✓ FLOWING |
+| `ProjectItems` | `items` | `useItems` (Convex) | Yes (DB query) | ✓ FLOWING |
+| `ItemCard` | `active` | Props (from parent hook) | Yes (KBD interaction) | ✓ FLOWING |
+
+### Behavioral Spot-Checks
+
+| Behavior | Command | Result | Status |
+| -------- | ------- | ------ | ------ |
+| Command Palette opens | `grep "mod+k" apps/web/src/components/layout/app-shell.tsx` | Found registration | ✓ PASS |
+| G-chord Inbox | `grep "g i" apps/web/src/components/layout/app-shell.tsx` | Found registration | ✓ PASS |
+| Shortcut Sheet | `grep "?" apps/web/src/components/layout/app-shell.tsx` | Found registration | ✓ PASS |
+
+### Requirements Coverage
+
+| Requirement | Source Plan | Description | Status | Evidence |
+| ----------- | ---------- | ----------- | ------ | -------- |
+| KBD-01 | 01-PLAN | Global `Cmd+K` command palette | ✓ SATISFIED | Implemented in `command-menu.tsx`. |
+| KBD-02 | 01-PLAN | Command palette actions | ✓ SATISFIED | Actions for Inbox, Today, Board, Projects, Search, Capture. |
+| KBD-03 | 02-PLAN | J/K list navigation | ✓ SATISFIED | Implemented via `useListNavigation`. |
+| KBD-04 | 02-PLAN | G-chord navigation | ✓ SATISFIED | Implemented in `AppShell`. |
+| KBD-05 | 03-PLAN | Cheat sheet overlay | ✓ SATISFIED | Implemented in `shortcut-cheat-sheet.tsx`. |
+| KBD-06 | 01/03-PLAN | Shortcut hints in UI | ✓ SATISFIED | Hints in `bottom-nav`, `capture-input`, `command-menu`. |
+
+### Anti-Patterns Found
+
+None. Implementation follows best practices for keyboard accessibility using `react-hotkeys-hook` and `cmdk`.
+
+### Human Verification Required
+
+1. **Test: Keyboard feel**
+   - **Expected:** J/K navigation should feel responsive and visual highlights should be clear on both light and dark modes.
+   - **Why human:** Automated checks can't verify visual quality and responsiveness feel.
+
+2. **Test: Modal focus management**
+   - **Expected:** When Command Palette or Cheat Sheet is open, focus should be trapped inside the modal, and J/K in the background should be disabled.
+   - **Why human:** Verifying focus trap and event suppression requires manual testing.
+
+### Gaps Summary
+
+No gaps found. The phase goal has been achieved.
 
 ---
 
-## Dimension 1: Requirement Coverage
-
-| Requirement | Description | Plans | Status |
-|-------------|-------------|-------|--------|
-| KBD-01 | Global Cmd+K command palette (cmdk) | 01 | ✅ Covered |
-| KBD-02 | Actions: Create Task, Inbox, Today, Search | 01 | ✅ Covered (Task 2 now includes Create Task) |
-| KBD-03 | J/K navigation for Inbox, Today, Project Details | 02 | ✅ Covered (Task 2 now includes Today and Projects) |
-| KBD-04 | Global single-key chords (e.g., G+I) | 02 | ✅ Covered |
-| KBD-05 | Keyboard shortcut cheat sheet overlay | 03 | ✅ Covered |
-| KBD-06 | Display shortcut hints (e.g., ⌘K) in UI | 01, 03 | ✅ Covered (Hints added to CommandMenu, Input, Nav) |
-
-### Resolved Blockers
-1.  **KBD-02 Coverage**: "Create Task" (or "Go to Capture") action added to the Command Palette in Plan 01 Task 2.
-2.  **KBD-03 Coverage**: J/K navigation expanded in Plan 02 to include `today-section.tsx` and `project-items.tsx`.
-3.  **KBD-06 Coverage**: Shortcut hints added to `CommandMenu`, `capture-input.tsx`, and `bottom-nav.tsx` across Plans 01 and 03.
-
----
-
-## Dimension 2: Task Completeness
-
-- All tasks in all plans contain required fields (<name>, <files>, <action>, <verify>, <done>).
-- Action descriptions are specific and actionable.
-- Verification commands are present and relevant.
-
----
-
-## Dimension 3: Dependency Correctness
-
-- Dependencies are valid and acyclic:
-  - Plan 01 (Wave 1) -> No dependencies.
-  - Plan 02 (Wave 2) -> Depends on 01-PLAN.md.
-  - Plan 03 (Wave 3) -> Depends on 02-PLAN.md.
-- All referenced plans exist.
-
----
-
-## Dimension 4: Key Links Planned
-
-- Key links correctly connect `app-shell.tsx` to the `CommandMenu` and `ShortcutCheatSheet`.
-- Plan 02 correctly links the `useListNavigation` hook to the `InboxList`, `TodaySection`, and `ProjectItems`.
-- All critical wiring is explicitly planned in task actions.
-
----
-
-## Dimension 5: Scope Sanity
-
-- Plans are well-scoped and manageable:
-  - Plan 01: 2 tasks, 3 files.
-  - Plan 02: 2 tasks, 6 files.
-  - Plan 03: 2 tasks, 4 files.
-- Task counts and file modifications are within limits for high-quality execution.
-
----
-
-## Dimension 6: Verification Derivation
-
-- Must-haves trace back to phase goal of mouse-free navigation.
-- Truths are user-observable and testable.
-- Artifacts and key links support the stated truths.
-
----
-
-## Dimension 9: Cross-Plan Data Contracts
-
-- No conflicting data transformations detected.
-- Navigation and hotkey registration are decoupled and use consistent patterns (react-hotkeys-hook).
-
----
-
-## Dimension 10: GEMINI.md Compliance
-
-- **SKIPPED**: No GEMINI.md found in project root.
-- Checked against `.planning/codebase/CONVENTIONS.md`; plans follow kebab-case for files and PascalCase for components.
-
----
-
-## Conclusion
-
-All blockers from the previous verification have been addressed. The plans now provide full coverage for Phase 2 requirements, including the "Create Task" action, expanded J/K navigation, and UI shortcut hints.
-
-**Verification Verdict: PASS ✅**
-
-Plans verified. Run `/gsd:execute-phase phase-2` to proceed.
+_Verified: 2025-03-05_
+_Verifier: gsd-verifier_

@@ -5,7 +5,7 @@ The goal of this project is to implement a high-speed, keyboard-first task manag
 ## Phases
 
 - [x] **Phase 1: Advanced Parsing Engine (Foundation)** - Implement the core multi-entity parser for tags, projects, and dates.
-- [ ] **Phase 2: Keyboard-First Navigation & Command Bar** - Enable mouse-free navigation through `cmdk` and global hotkeys.
+- [x] **Phase 2: Keyboard-First Navigation & Command Bar** - Enable mouse-free navigation through `cmdk` and global hotkeys.
 - [ ] **Phase 3: Real-time UI Chipping & Feedback** - Provide immediate visual confirmation and "chipping" of metadata in the capture input.
 
 ## Phase Details
@@ -35,9 +35,9 @@ Plans:
   4. Shortcut hints are visible in the UI to facilitate learning.
 
 Plans:
-- [ ] phase-2-01-PLAN.md — Core Command Bar foundation
-- [ ] phase-2-02-PLAN.md — Shortcut Chords & Navigation
-- [ ] phase-2-03-PLAN.md — Cheat Sheet & UI hints
+- [x] phase-2-01-PLAN.md — Core Command Bar foundation
+- [x] phase-2-02-PLAN.md — Shortcut Chords & Navigation
+- [x] phase-2-03-PLAN.md — Cheat Sheet & UI hints
 
 ### Phase 3: Real-time UI Chipping & Feedback
 **Goal**: Provide immediate visual confirmation and trust for the parsing engine.
@@ -48,12 +48,16 @@ Plans:
   2. Detected entities (e.g., `#work`) are visually transformed into "chips" with `framer-motion` animations.
   3. Users can undo/revert a chip back to text by backspacing into it.
   4. An inline preview displays the interpreted metadata beneath the input.
-**Plans**: TBD
+
+Plans:
+- [ ] phase-3-01-PLAN.md — Lexical Foundation & Type Chipping
+- [ ] phase-3-02-PLAN.md — Advanced Chipping & Escape Mechanism
+- [ ] phase-3-03-PLAN.md — Animations & Metadata Preview
 
 ## Progress Table
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Advanced Parsing Engine | 2/2 | Completed | 2025-03-29 |
-| 2. Keyboard-First Navigation & Command Bar | 0/3 | Not started | - |
-| 3. Real-time UI Chipping & Feedback | 0/0 | Not started | - |
+| 2. Keyboard-First Navigation & Command Bar | 3/3 | Completed | 2025-03-29 |
+| 3. Real-time UI Chipping & Feedback | 0/3 | Not started | - |
