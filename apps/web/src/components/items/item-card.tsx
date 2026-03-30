@@ -103,7 +103,7 @@ export function ItemCard({ item, onClick, active }: ItemCardProps) {
             <div className="flex gap-1 mt-1 flex-wrap items-center">
               {item.projectId && projects && (
                 <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-wider py-0 px-1.5 border-primary/20 bg-primary/5 text-primary/80">
-                  {projects.find((p: any) => p.id === item.projectId)?.alias || 'PROJ'}
+                  {projects.find((p: any) => p.id === item.projectId || p._id === item.projectId)?.alias || 'PROJ'}
                 </Badge>
               )}
               {item.dueAt && (

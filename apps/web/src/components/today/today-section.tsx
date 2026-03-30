@@ -14,6 +14,7 @@ import { formatDueDate } from '@/lib/dates';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { useProjects } from '@/hooks/use-projects-convex';
 
 const typeIcons = {
   idea: Lightbulb,
@@ -46,6 +47,7 @@ export function TodaySection({
 }: TodaySectionProps) {
   const updateItem = useUpdateItem();
   const navigate = useNavigate();
+  const projects = useProjects();
 
   const handleMarkDone = async (e: React.MouseEvent, itemId: string) => {
     e.stopPropagation();
@@ -108,7 +110,12 @@ export function TodaySection({
                   <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{item.title}</p>
-                    <div className="flex gap-1 mt-1 flex-wrap">
+                    <div className="flex gap-1 mt-1 flex-wrap items-center">
+                      {item.projectId && projects && (
+                        <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-wider py-0 px-1.5 border-primary/20 bg-primary/5 text-primary/80">
+                          {projects.find((p: any) => p.id === item.projectId || p._id === item.projectId)?.alias || 'PROJ'}
+                        </Badge>
+                      )}
                       {item.dueAt && (
                         <Badge variant="outline" className="text-xs">
                           {formatDueDate(item.dueAt)}

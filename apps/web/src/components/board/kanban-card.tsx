@@ -5,6 +5,7 @@ import type { ItemWithTags } from '@grovsnotes/shared';
 import { Lightbulb, CheckSquare, FileText, Bug, FlaskConical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { formatDueDate, isOverdue } from '@/lib/dates';
+import { useProjects } from '@/hooks/use-projects-convex';
 
 const typeIcons = {
   idea: Lightbulb,
@@ -22,6 +23,7 @@ interface KanbanCardProps {
 
 export function KanbanCard({ item }: KanbanCardProps) {
   const navigate = useNavigate();
+  const projects = useProjects();
   const Icon = typeIcons[item.type] || FileText;
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -47,7 +49,12 @@ export function KanbanCard({ item }: KanbanCardProps) {
         <Icon className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{item.title}</p>
-          <div className="flex gap-1 mt-2 flex-wrap">
+          <div className="flex gap-1 mt-2 flex-wrap items-center">
+            {item.projectId && projects && (
+              <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-wider py-0 px-1.5 border-primary/20 bg-primary/5 text-primary/80">
+                {projects.find((p: any) => p.id === item.projectId || p._id === item.projectId)?.alias || 'PROJ'}
+              </Badge>
+            )}
             {item.dueAt && (
               <>
                 {isOverdue(item.dueAt) ? (
