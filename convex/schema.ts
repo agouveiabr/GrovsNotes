@@ -10,7 +10,9 @@ export default defineSchema({
       v.literal("task"),
       v.literal("note"),
       v.literal("bug"),
-      v.literal("research")
+      v.literal("research"),
+      v.literal("to-do"),
+      v.literal("log")
     ),
     status: v.union(
       v.literal("inbox"),
@@ -47,6 +49,7 @@ export default defineSchema({
 
   projects: defineTable({
     name: v.string(),
+    alias: v.optional(v.string()),
     color: v.optional(v.string()),
     icon: v.optional(v.string()),
   }),

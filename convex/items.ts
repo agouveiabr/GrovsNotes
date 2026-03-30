@@ -48,24 +48,36 @@ export const createItem = mutation({
         v.literal("task"),
         v.literal("note"),
         v.literal("bug"),
-        v.literal("research")
+        v.literal("research"),
+        v.literal("to-do"),
+        v.literal("log")
       )
     ),
     projectId: v.optional(v.id("projects")),
   },
   handler: async (ctx, args) => {
-    const { cleanTitle, tags } = parseHashtags(args.title);
+    const { cleanTitle: baseCleanTitle, tags } = parseHashtags(args.title);
     const now = Date.now();
 
-    const itemId = await ctx.db.insert("items", {
+    // Auto-date for log items
+    let cleanTitle = baseCleanTitle;
+    const itemType = args.type ?? "idea";
+    if (itemType === "log") {
+      const dateStr = new Date(now).toISOString().split('T')[0];
+      cleanTitle = `[${dateStr}] ${baseCleanTitle}`;
+    }
+
+    const itemDoc: any = {
       title: cleanTitle,
-      content: args.content,
-      type: args.type ?? "idea",
+      type: itemType,
       status: "inbox",
-      projectId: args.projectId,
       createdAt: now,
       updatedAt: now,
-    });
+    };
+    if (args.content !== undefined) itemDoc.content = args.content;
+    if (args.projectId !== undefined) itemDoc.projectId = args.projectId;
+
+    const itemId = await ctx.db.insert("items", itemDoc);
 
     if (tags.length > 0) {
       const tagIds = await upsertTags(ctx, tags);
@@ -95,7 +107,9 @@ export const listItems = query({
         v.literal("task"),
         v.literal("note"),
         v.literal("bug"),
-        v.literal("research")
+        v.literal("research"),
+        v.literal("to-do"),
+        v.literal("log")
       )
     ),
     projectId: v.optional(v.id("projects")),
@@ -178,7 +192,9 @@ export const updateItem = mutation({
         v.literal("task"),
         v.literal("note"),
         v.literal("bug"),
-        v.literal("research")
+        v.literal("research"),
+        v.literal("to-do"),
+        v.literal("log")
       )
     ),
     projectId: v.optional(v.id("projects")),

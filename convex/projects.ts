@@ -48,6 +48,7 @@ export const updateProject = mutation({
   args: {
     id: v.id("projects"),
     name: v.optional(v.string()),
+    alias: v.optional(v.string()),
     color: v.optional(v.string()),
     icon: v.optional(v.string()),
   },
@@ -57,6 +58,7 @@ export const updateProject = mutation({
 
     const updates: Record<string, any> = {};
     if (args.name !== undefined) updates.name = args.name;
+    if (args.alias !== undefined) updates.alias = args.alias;
     if (args.color !== undefined) updates.color = args.color;
     if (args.icon !== undefined) updates.icon = args.icon;
 
