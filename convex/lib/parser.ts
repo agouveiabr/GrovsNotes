@@ -1,6 +1,6 @@
 import { parseDate } from "chrono-node";
 
-export type ItemType = "task" | "bug" | "note" | "idea" | "research";
+export type ItemType = "task" | "bug" | "note" | "idea" | "research" | "to-do" | "log";
 
 export interface ParsedItem {
   type: ItemType;
@@ -11,11 +11,12 @@ export interface ParsedItem {
 }
 
 const TYPE_MAPPING: Record<string, ItemType> = {
-  todo: "task",
+  todo: "to-do",
+  "to-do": "to-do",
   feat: "task",
   chore: "task",
   fix: "bug",
-  log: "note",
+  log: "log",
   idea: "idea",
 };
 
@@ -51,7 +52,7 @@ export function parseItem(
   let dueAt: number | undefined = undefined;
 
   // Rule PARSER-03: 'log' auto-date
-  if (type === "note" && rawType === "log" && !datePart) {
+  if (type === "log" && !datePart) {
     dueAt = context.now;
   } else if (datePart) {
     const referenceDate = new Date(context.now);
