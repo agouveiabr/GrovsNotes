@@ -11,7 +11,7 @@ export const refineNote = action({
     title: v.string(),
     content: v.string(),
   },
-  handler: async (ctx, args): Promise<RefinedNote> => {
+  handler: async (_ctx, args): Promise<RefinedNote> => {
     const geminiApiKey = process.env.GEMINI_API_KEY;
     const geminiModel = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
 

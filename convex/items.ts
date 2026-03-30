@@ -1,7 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { parseHashtags } from "./lib/hashtags";
-import { Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 import { parseItem } from "./lib/parser";
 import { internalFindOrCreateProject } from "./projects";
 

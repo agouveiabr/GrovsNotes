@@ -1,7 +1,7 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { parseSearch } from "./lib/search_parser";
-import { Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 
 async function getItemTags(ctx: any, itemId: Id<"items">): Promise<string[]> {
   const itemTags = await ctx.db
