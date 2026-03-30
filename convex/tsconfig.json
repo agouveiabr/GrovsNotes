@@ -1,5 +1,5 @@
 {
-  "extends": "convex/tsconfig.json",
+  "extends": "../node_modules/convex/tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
