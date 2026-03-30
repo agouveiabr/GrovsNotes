@@ -6,7 +6,7 @@ export function useProjects() {
 }
 
 export function useProject(id: string) {
-  return useQuery(api.projects.getProject, { id });
+  return useQuery(api.projects.getProject, { id: id as any });
 }
 
 export function useCreateProject() {

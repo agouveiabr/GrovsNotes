@@ -9,7 +9,7 @@ export function useItems(params?: {
   tag?: string;
   limit?: number;
 }) {
-  return useQuery(api.items.listItems, params || {});
+  return useQuery(api.items.listItems, (params as any) || {});
 }
 
 export function useItem(id: string) {
