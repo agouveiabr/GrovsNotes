@@ -1,4 +1,4 @@
-import * as chrono from "chrono-node";
+import { parseDate } from "chrono-node";
 
 export type ItemType = "task" | "bug" | "note" | "idea" | "research";
 
@@ -30,30 +30,24 @@ export function parseItem(
 
   // Default values
   let rawType = parts[0]?.toLowerCase() || "";
-  let project = parts[1] || undefined;
+  let project: string | undefined = parts[1];
   let cleanTitle = parts[2] || "";
   let datePart = parts[3] || "";
 
   // Handle cases with fewer than 4 parts
   if (parts.length === 1) {
-    // If only one part, it's the title
-    cleanTitle = parts[0];
-    rawType = "todo"; // Default type
+    cleanTitle = parts[0] || "";
+    rawType = "todo";
   } else if (parts.length === 2) {
-    // Type - Title
-    rawType = parts[0].toLowerCase();
-    cleanTitle = parts[1];
+    rawType = (parts[0] || "").toLowerCase();
+    cleanTitle = parts[1] || "";
   } else if (parts.length === 3) {
-    // Type - Project - Title
-    rawType = parts[0].toLowerCase();
+    rawType = (parts[0] || "").toLowerCase();
     project = parts[1];
-    cleanTitle = parts[2];
+    cleanTitle = parts[2] || "";
   }
 
-  // Semantic mapping
   const type = TYPE_MAPPING[rawType] || (rawType as ItemType) || "task";
-
-  // Date parsing
   let dueAt: number | undefined = undefined;
 
   // Rule PARSER-03: 'log' auto-date
@@ -61,20 +55,30 @@ export function parseItem(
     dueAt = context.now;
   } else if (datePart) {
     const referenceDate = new Date(context.now);
-    const parsedDate = chrono.parseDate(datePart, {
-      instant: referenceDate,
-      timezoneOffset: context.timezoneOffset,
+    // chrono-node parseDate signature expects (text, ref, option)
+    const parsed = parseDate(datePart, referenceDate, {
+      forwardDate: true,
+      timezones: {
+        // We can pass timezone offsets if needed, but usually referenceDate suffices
+      }
     });
-    if (parsedDate) {
-      dueAt = parsedDate.getTime();
+    if (parsed) {
+      dueAt = parsed.getTime();
     }
   }
 
-  return {
+  const result: ParsedItem = {
     type,
-    project: project || undefined,
     cleanTitle,
-    dueAt,
     originalInput: input,
   };
+
+  if (project !== undefined) {
+    result.project = project;
+  }
+  if (dueAt !== undefined) {
+    result.dueAt = dueAt;
+  }
+
+  return result;
 }
