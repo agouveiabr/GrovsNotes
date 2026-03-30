@@ -35,7 +35,7 @@ export function ProjectList() {
       
       <form onSubmit={handleCreate} className="flex gap-2">
         <Input 
-          placeholder="New project name..." 
+          placeholder="New project name or 'Name - Alias'..." 
           value={newProjectName} 
           onChange={(e) => setNewProjectName(e.target.value)} 
         />
@@ -57,6 +57,11 @@ export function ProjectList() {
                 style={{ backgroundColor: project.color || 'var(--primary)' }}
               />
               <span className="font-medium text-lg truncate leading-tight">{project.name}</span>
+              {project.alias && (
+                <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">
+                  {project.alias}
+                </span>
+              )}
             </div>
             <span className="text-sm text-muted-foreground">
               {project.itemCount} item{project.itemCount !== 1 ? 's' : ''}

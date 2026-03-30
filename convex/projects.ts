@@ -8,11 +8,25 @@ export const createProject = mutation({
     icon: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("projects", {
-      name: args.name,
-      color: args.color,
-      icon: args.icon,
-    });
+    let finalName = args.name;
+    let finalAlias = undefined;
+
+    if (args.name.includes(" - ")) {
+      const parts = args.name.split(" - ");
+      if (parts.length >= 2) {
+        finalName = parts[0]!.trim();
+        finalAlias = parts[1]!.trim();
+      }
+    }
+
+    const projectDoc: any = {
+      name: finalName,
+    };
+    if (finalAlias) projectDoc.alias = finalAlias;
+    if (args.color) projectDoc.color = args.color;
+    if (args.icon) projectDoc.icon = args.icon;
+
+    return await ctx.db.insert("projects", projectDoc);
   },
 });
 
@@ -48,6 +62,7 @@ export const updateProject = mutation({
   args: {
     id: v.id("projects"),
     name: v.optional(v.string()),
+    alias: v.optional(v.string()),
     color: v.optional(v.string()),
     icon: v.optional(v.string()),
   },
@@ -57,6 +72,7 @@ export const updateProject = mutation({
 
     const updates: Record<string, any> = {};
     if (args.name !== undefined) updates.name = args.name;
+    if (args.alias !== undefined) updates.alias = args.alias;
     if (args.color !== undefined) updates.color = args.color;
     if (args.icon !== undefined) updates.icon = args.icon;
 
