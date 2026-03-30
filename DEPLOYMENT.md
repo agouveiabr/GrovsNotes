@@ -110,6 +110,8 @@ Follow the prompts. Vercel will:
 - Set up `VITE_CONVEX_URL` environment variable
 - Deploy automatically on push
 
+**⚠️ IMPORTANT AVERT:** Vercel only deploys your React frontend. It **does not** automatically deploy your Convex backend functions or schema changes. Whenever you modify files in the `convex/` folder, you MUST run `npx convex deploy` locally to push those changes to your production Convex environment! Alternatively, you can [configure the Vercel-Convex integration](https://docs.convex.dev/hosting/vercel) to do it automatically.
+
 ### Option B: Other Hosting
 
 Deploy the built frontend from `apps/web/dist/` to your preferred host:

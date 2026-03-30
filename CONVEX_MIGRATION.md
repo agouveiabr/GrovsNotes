@@ -143,8 +143,8 @@ If you need to revert:
 - [x] Phase 1: Schema setup
 - [x] Phase 2: Backend functions
 - [x] Phase 3: Update all components to use Convex hooks
-- [ ] Phase 4: Deploy to Convex Cloud
-- [ ] Phase 5: E2E testing and git hook verification
+- [x] Phase 4: Deploy to Convex Cloud
+- [x] Phase 5: E2E testing and git hook verification
 
 ## Next Steps - Full Deployment Flow
 

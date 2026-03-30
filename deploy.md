@@ -1,17 +1,13 @@
-The application is now fully hosted and operational across all layers, free of charge, on Google Cloud Platform (GCP).
+The application is now fully hosted and operational across all layers.
 
 Here is the complete, final summary of the hosting environment:
 
 | Component | Technology / Configuration | Location / Path | Status |
 | :--- | :--- | :--- | :--- |
-| **Cloud Provider** | Google Cloud Platform (GCP) Free Tier | `e2-micro` VM, **30GB Standard Persistent Disk** | Active, Free Tier Eligible |
-| **Operating System** | Linux (Likely Ubuntu) | N/A | Configured with Swap |
-| **Domain/SSL** | DuckDNS (`grovsnotes.duckdns.org`) | Caddy handles automatic Let's Encrypt SSL via Port 443. | **Active and Secure (HTTPS)** |
-| **Web Server / Reverse Proxy** | Caddy (running as `systemd` service) | Configured via `/etc/caddy/Caddyfile` | Active and Running |
-| **Frontend (SPA)** | React/TypeScript/Vite | Built static files served from: `/home/agouveialins/GrovsNotes/apps/web/dist` | Serving via Caddy on Port 80/443 |
-| **Backend (API)** | Node.js/Fastify/TypeScript | Starts via `tsx src/index.ts` (Proxied by Caddy on Port 3000) | Active via PM2 |
-| **AI Service** | Ollama (Local) or Gemini (Fallback) | Configured in `.env` | **Ready for choice** |
-| **Process Management** | PM2 | Configured to auto-restart on server boot (`pm2 startup systemd`) | API process `grovsnotes-api` is **Online** |
-| **PWA Status** | Frontend enabled for PWA | Service Worker configuration added to `apps/web/vite.config.ts` | Ready for installation on Android/Mobile devices |
+| **Frontend (SPA)** | React/TypeScript/Vite | Hosted on Vercel | Active |
+| **Backend (API + DB)** | Convex (Serverless) | Hosted on Convex Cloud | Active |
+| **AI Service** | Gemini | Configured in Convex Cloud Dashboard | Ready |
+| **PWA Status** | Frontend enabled for PWA | Service Worker configuration added | Ready for installation on Android/Mobile |
 
-**In short:** Your application is fully deployed on a free virtual machine, accessible securely via HTTPS on your custom DuckDNS domain, and configured to self-restart if the server ever goes down.
+**In short:** Your application is fully deployed using a modern serverless stack, with the frontend on Vercel and the backend/database on Convex Cloud. 
+**⚠️ IMPORTANT:** Remember that Vercel only deploys the frontend. When making backend changes (to the `convex/` folder), you must run `npx convex deploy` locally to push them to production.
