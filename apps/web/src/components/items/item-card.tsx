@@ -66,7 +66,7 @@ export function ItemCard({ item, onClick, active }: ItemCardProps) {
   const handleConfirm = async () => {
     if (!suggestion) return;
     try {
-      await update({ id: item.id, title: suggestion.title, content: suggestion.content });
+      await update({ id: item.id as any, title: suggestion.title, content: suggestion.content });
       toast.success('Note refined!');
       setShowPreview(false);
     } catch (err) {

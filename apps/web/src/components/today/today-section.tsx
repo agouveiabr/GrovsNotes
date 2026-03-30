@@ -48,7 +48,7 @@ export function TodaySection({
   const handleMarkDone = async (e: React.MouseEvent, itemId: string) => {
     e.stopPropagation();
     try {
-      await updateItem({ id: itemId, status: 'done' });
+      await updateItem({ id: itemId as any, status: 'done' });
       toast.success('Item marked done');
     } catch (err) {
       toast.error('Failed to update item');
@@ -57,7 +57,7 @@ export function TodaySection({
 
   const handleStatusChange = async (itemId: string, status: string) => {
     try {
-      await updateItem({ id: itemId, status: status as ItemStatus });
+      await updateItem({ id: itemId as any, status: status as ItemStatus });
       toast.success('Status updated');
     } catch (err) {
       toast.error('Failed to update status');

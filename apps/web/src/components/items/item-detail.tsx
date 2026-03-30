@@ -82,7 +82,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
         return;
       }
       try {
-        await updateItem({ id, [field]: value });
+        await updateItem({ id: id as any, [field]: value });
       } catch {
         toast.error('Failed to update item');
       }
@@ -91,7 +91,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
 
   const handleTypeChange = async (value: string) => {
     try {
-      await updateItem({ id, type: value as ItemType });
+      await updateItem({ id: id as any, type: value as ItemType });
     } catch {
       toast.error('Failed to update type');
     }
@@ -99,7 +99,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
 
   const handleStatusChange = async (value: string) => {
     try {
-      await updateItem({ id, status: value as ItemStatus });
+      await updateItem({ id: id as any, status: value as ItemStatus });
     } catch {
       toast.error('Failed to update status');
     }
@@ -107,7 +107,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
 
   const handleProjectChange = async (value: string) => {
     try {
-      await updateItem({ id, projectId: value === 'none' ? undefined : value });
+      await updateItem({ id: id as any, projectId: value === 'none' ? undefined : (value as any) });
     } catch {
       toast.error('Failed to update project');
     }
@@ -115,7 +115,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
 
   const handleDueDateChange = async (value: string) => {
     try {
-      await updateItem({ id, dueAt: value ? dateInputToTimestamp(value) : null });
+      await updateItem({ id: id as any, dueAt: value ? dateInputToTimestamp(value) : null });
     } catch {
       toast.error('Failed to update due date');
     }
@@ -123,7 +123,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
 
   const handleDelete = async () => {
     try {
-      await deleteItem({ id });
+      await deleteItem({ id: id as any });
       toast.success('Item deleted');
       navigate('/inbox');
     } catch {
@@ -170,7 +170,7 @@ export function ItemDetail({ id }: ItemDetailProps) {
     if (!aiSuggestion) return;
     try {
       await updateItem({
-        id,
+        id: id as any,
         title: aiSuggestion.title,
         content: aiSuggestion.content,
       });
