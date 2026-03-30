@@ -16,7 +16,7 @@ export function parseSearch(query: string): ParsedSearch {
   let match: RegExpExecArray | null;
   while ((match = filterPattern.exec(query)) !== null) {
     const key = match[1] as keyof ParsedSearch["filters"];
-    filters[key] = match[2];
+    filters[key] = match[2]!;
   }
 
   // Remove filter patterns from the query to get the text portion

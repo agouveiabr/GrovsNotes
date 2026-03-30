@@ -2,10 +2,11 @@
   "extends": "../node_modules/convex/tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "rootDir": ".",
     "paths": {
       "@/*": ["../*"]
     },
-    "lib": ["ES2020"],
+    "lib": ["ES2021", "DOM"],
     "skipLibCheck": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
@@ -13,5 +14,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
-  }
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["../node_modules", "node_modules"]
 }

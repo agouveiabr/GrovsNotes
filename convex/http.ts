@@ -10,6 +10,7 @@ http.route({
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     const apiKey = request.headers.get("x-api-key");
+    // @ts-ignore
     const expectedKey = process.env.API_KEY;
 
     if (!expectedKey || apiKey !== expectedKey) {

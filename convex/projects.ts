@@ -71,8 +71,27 @@ export const updateProject = mutation({
     if (!project) throw new Error("Project not found");
 
     const updates: Record<string, any> = {};
-    if (args.name !== undefined) updates.name = args.name;
-    if (args.alias !== undefined) updates.alias = args.alias;
+    if (args.name !== undefined) {
+      let finalName = args.name;
+      let finalAlias = args.alias;
+      
+      if (args.name.includes(" - ")) {
+        const parts = args.name.split(" - ");
+        if (parts.length >= 2) {
+          finalName = parts[0]!.trim();
+          finalAlias = parts[1]!.trim();
+        }
+      }
+      
+      updates.name = finalName;
+      if (finalAlias !== undefined) updates.alias = finalAlias;
+    } else {
+      if (args.alias !== undefined) updates.alias = args.alias;
+    }
+    
+    // Also explicitly support unsetting alias if it's explicitly null
+    // But since schema allows optional string, if it's explicitly set to be cleared from UI it's difficult because optional doesn't allow null. 
+    // Wait, the UI sends `undefined`. We probably don't want to clear it if undefined.
     if (args.color !== undefined) updates.color = args.color;
     if (args.icon !== undefined) updates.icon = args.icon;
 

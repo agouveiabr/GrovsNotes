@@ -9,7 +9,7 @@ export function parseHashtags(input: string): ParsedHashtags {
   let match: RegExpExecArray | null;
 
   while ((match = tagPattern.exec(input)) !== null) {
-    tags.push(match[1].toLowerCase());
+    tags.push(match[1]!.toLowerCase());
   }
 
   const cleanTitle = input

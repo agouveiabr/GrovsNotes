@@ -12,7 +12,9 @@ export const refineNote = action({
     content: v.string(),
   },
   handler: async (_ctx, args): Promise<RefinedNote> => {
+    // @ts-ignore
     const geminiApiKey = process.env.GEMINI_API_KEY;
+    // @ts-ignore
     const geminiModel = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
 
     if (!geminiApiKey) {
@@ -48,7 +50,7 @@ CLEAN AND FORMAT NOW:`;
         const trimmed = raw.trim();
         // If AI wrapped in code blocks, extract content
         const jsonMatch = trimmed.match(/```json?\s*([\s\S]*?)\s*```/);
-        const cleanJson = jsonMatch ? jsonMatch[1].trim() : trimmed;
+        const cleanJson = jsonMatch ? jsonMatch[1]!.trim() : trimmed;
         return JSON.parse(cleanJson);
       } catch (e) {
         throw new Error(

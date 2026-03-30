@@ -8,6 +8,7 @@ export const sendToObsidian = action({
     type: v.string(),
   },
   handler: async (_ctx, args) => {
+    // @ts-ignore
     const apiKey = process.env.OBSIDIAN_BRAIN_API_KEY;
     if (!apiKey) throw new Error('OBSIDIAN_BRAIN_API_KEY not configured');
 
