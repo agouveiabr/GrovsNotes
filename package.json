@@ -1,6 +1,7 @@
 {
   "name": "grovsnotes",
   "private": true,
+  "packageManager": "pnpm@10.0.0",
   "scripts": {
     "dev": "pnpm --parallel --filter './apps/web' --filter './apps/desktop' dev",
     "desktop:dev": "pnpm --filter @grovsnotes/desktop tauri dev",
@@ -18,7 +19,7 @@
     "vitest": "^3.0.0"
   },
   "engines": {
-    "node": ">=22",
+    "node": "22.x",
     "pnpm": ">=10"
   },
   "pnpm": {
