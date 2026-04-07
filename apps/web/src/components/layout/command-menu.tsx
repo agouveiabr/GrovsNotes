@@ -48,35 +48,30 @@ export function CommandMenu({ open, setOpen }: CommandMenuProps) {
               >
                 <Inbox className="mr-2 h-4 w-4" />
                 <span>Go to Inbox</span>
-                <CommandShortcut>G I</CommandShortcut>
               </CommandItem>
               <CommandItem
                 onSelect={() => runCommand(() => navigate("/today"))}
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 <span>Go to Today</span>
-                <CommandShortcut>G T</CommandShortcut>
               </CommandItem>
               <CommandItem
                 onSelect={() => runCommand(() => navigate("/board"))}
               >
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 <span>Go to Board</span>
-                <CommandShortcut>G B</CommandShortcut>
               </CommandItem>
               <CommandItem
                 onSelect={() => runCommand(() => navigate("/projects"))}
               >
                 <Layers className="mr-2 h-4 w-4" />
                 <span>Go to Projects</span>
-                <CommandShortcut>G P</CommandShortcut>
               </CommandItem>
               <CommandItem
                 onSelect={() => runCommand(() => navigate("/search"))}
               >
                 <Search className="mr-2 h-4 w-4" />
                 <span>Search</span>
-                <CommandShortcut>G S</CommandShortcut>
               </CommandItem>
             </Command.Group>
             <Command.Group heading="Actions" className="overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground">
@@ -85,7 +80,6 @@ export function CommandMenu({ open, setOpen }: CommandMenuProps) {
               >
                 <Plus className="mr-2 h-4 w-4" />
                 <span>Create Task / Capture</span>
-                <CommandShortcut>↵</CommandShortcut>
               </CommandItem>
             </Command.Group>
           </Command.List>
@@ -110,20 +104,5 @@ function CommandItem({
     >
       {children}
     </Command.Item>
-  )
-}
-
-function CommandShortcut({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement>) {
-  return (
-    <span
-      className={cn(
-        "ml-auto text-xs tracking-widest text-muted-foreground",
-        className
-      )}
-      {...props}
-    />
   )
 }

@@ -8,27 +8,9 @@ interface ShortcutCheatSheetProps {
 export function ShortcutCheatSheet({ open, onOpenChange }: ShortcutCheatSheetProps) {
   const shortcuts = [
     {
-      category: "Navigation",
-      items: [
-        { keys: ["G", "I"], description: "Go to Inbox" },
-        { keys: ["G", "T"], description: "Go to Today" },
-        { keys: ["G", "P"], description: "Go to Projects" },
-        { keys: ["G", "B"], description: "Go to Board" },
-        { keys: ["G", "S"], description: "Go to Search" },
-        { keys: ["G", "C"], description: "Go to Capture" },
-      ]
-    },
-    {
       category: "Global",
       items: [
         { keys: ["⌘", "K"], description: "Open Command Palette" },
-        { keys: ["?"], description: "Open Shortcut Cheat Sheet" },
-      ]
-    },
-    {
-      category: "Capture",
-      items: [
-        { keys: ["⌘", "Enter"], description: "Save Item" },
       ]
     }
   ]

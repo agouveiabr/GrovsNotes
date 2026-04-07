@@ -6,7 +6,7 @@
   "build": {
     "beforeDevCommand": "pnpm --filter @grovsnotes/web dev",
     "devUrl": "http://localhost:5173",
-    "beforeBuildCommand": "pnpm --filter @grovsnotes/web build",
+    "beforeBuildCommand": "",
     "frontendDist": "../../web/dist"
   },
   "app": {

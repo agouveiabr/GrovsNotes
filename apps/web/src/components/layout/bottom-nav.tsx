@@ -3,12 +3,12 @@ import { Plus, LayoutGrid, FolderOpen, Search, CalendarCheck, Sun, Moon, Inbox }
 import { useTheme } from '@/components/theme/theme-provider';
 
 const navItems = [
-  { to: '/', label: 'Capture', icon: Plus, shortcut: 'G+C' },
-  { to: '/inbox', label: 'Inbox', icon: Inbox, shortcut: 'G+I' },
-  { to: '/board', label: 'Board', icon: LayoutGrid, shortcut: 'G+B' },
-  { to: '/projects', label: 'Projects', icon: FolderOpen, shortcut: 'G+P' },
-  { to: '/search', label: 'Search', icon: Search, shortcut: 'G+S' },
-  { to: '/today', label: 'Today', icon: CalendarCheck, shortcut: 'G+T' },
+  { to: '/', label: 'Capture', icon: Plus },
+  { to: '/inbox', label: 'Inbox', icon: Inbox },
+  { to: '/board', label: 'Board', icon: LayoutGrid },
+  { to: '/projects', label: 'Projects', icon: FolderOpen },
+  { to: '/search', label: 'Search', icon: Search },
+  { to: '/today', label: 'Today', icon: CalendarCheck },
 ];
 
 export function BottomNav() {
@@ -31,11 +31,6 @@ export function BottomNav() {
             <item.icon className="h-5 w-5" />
             <div className="flex flex-col items-center">
               <span>{item.label}</span>
-              {item.shortcut && (
-                <span className="text-[8px] opacity-40 font-mono -mt-0.5">
-                  {item.shortcut}
-                </span>
-              )}
             </div>
           </NavLink>
         ))}
