@@ -6,7 +6,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { CaptureInput } from './capture-input';
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
-const mockCreateItem = vi.fn(async () => 'new-item-id');
+const mockCreateItem = vi.fn(async (_payload: Record<string, unknown>) => 'new-item-id');
 const mockCreateProject = vi.fn(async () => 'new-project-id');
 
 // Mock hooks
@@ -68,7 +68,8 @@ describe('CaptureInput Preview', () => {
     fireEvent.click(screen.getByRole('button', { name: /save/i }));
 
     expect(mockCreateItem).toHaveBeenCalled();
-    const payload = mockCreateItem.mock.calls.at(-1)?.[0] ?? {};
+    const lastCall = mockCreateItem.mock.calls[mockCreateItem.mock.calls.length - 1];
+    const payload = (lastCall?.[0] ?? {}) as { title?: string; content?: string };
     expect(payload.title).toBe('Fix header');
     expect(payload.content).toBe('Detailed note body');
   });
